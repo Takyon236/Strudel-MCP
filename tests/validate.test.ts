@@ -210,3 +210,93 @@ describe('validate — regression: size effect alias', () => {
     expect(warnings('sound("bd*4").room(.5).size(3)')).toEqual([]);
   });
 });
+
+describe('validate — JS expression edge cases', () => {
+  test('arrow function in .every()', () => {
+    expect(
+      errors('note("c e g").every(4, x => x.rev())'),
+    ).toEqual([]);
+  });
+
+  test('arrow function with block body', () => {
+    expect(
+      errors('note("c").sometimes(x => { return x.fast(2); })'),
+    ).toEqual([]);
+  });
+
+  test('division operator not confused with comment', () => {
+    expect(errors('note("c").gain(1/2)')).toEqual([]);
+  });
+
+  test('expression a/b next to //comment', () => {
+    expect(
+      errors('note("c").gain(1/2) // a comment'),
+    ).toEqual([]);
+  });
+
+  test('object literal in args', () => {
+    expect(
+      errors('note("c").stuff({foo: 1, bar: 2})'),
+    ).toEqual([]);
+  });
+
+  test('array literal in args', () => {
+    expect(errors('note("c").add([1,2,3])')).toEqual([]);
+  });
+
+  test('signal chain sine.range().slow()', () => {
+    expect(
+      errors('note("c").lpf(sine.range(100, 2000).slow(4))'),
+    ).toEqual([]);
+  });
+
+  test('number literal with decimal', () => {
+    expect(errors('note("c").gain(.5).lpf(1200.5)')).toEqual([]);
+  });
+
+  test('negative number', () => {
+    expect(errors('note("c").add(-7)')).toEqual([]);
+  });
+
+  test('multi-line chain with comments interleaved', () => {
+    const code = `note("c e g")
+  // first the filter
+  .lpf(1200)
+  // then room
+  .room(.5)
+  .gain(.8)`;
+    expect(errors(code)).toEqual([]);
+    expect(warnings(code)).toEqual([]);
+  });
+
+  test('deeply nested brackets', () => {
+    expect(
+      errors('stack(cat(stack(s("bd"), s("hh")), s("sd")), s("cp"))'),
+    ).toEqual([]);
+  });
+
+  test('polyphonic chord in mini', () => {
+    expect(
+      errors('note("[c,e,g] [d,f,a] [g,b,d]")'),
+    ).toEqual([]);
+  });
+
+  test('nested template literal interpolation', () => {
+    expect(
+      infos('const x = `outer ${`inner ${y}`}`'),
+    ).toEqual([]);
+  });
+});
+
+describe('validate — very large inputs', () => {
+  test('1000 lines of valid patterns', () => {
+    const code = 'sound("bd*4").lpf(500)\n'.repeat(1000);
+    expect(errors(code)).toEqual([]);
+  });
+
+  test('single line with 500 chained methods', () => {
+    const chain = Array(500).fill('.gain(.5)').join('');
+    const code = `sound("bd*4")${chain}`;
+    expect(errors(code)).toEqual([]);
+  });
+});

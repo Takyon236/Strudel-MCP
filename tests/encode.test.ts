@@ -26,6 +26,36 @@ describe('encode — codeToHash / hashToCode', () => {
     expect(hashToCode(codeToHash(code))).toBe(code);
   });
 
+  test('Windows CRLF line endings preserved', () => {
+    const code = 'line1\r\nline2\r\nline3';
+    expect(hashToCode(codeToHash(code))).toBe(code);
+  });
+
+  test('emoji roundtrip', () => {
+    const code = '// 🎵 beat 🥁\nsound("bd*4")';
+    expect(hashToCode(codeToHash(code))).toBe(code);
+  });
+
+  test('high-plane unicode (musical symbols U+1D15F)', () => {
+    const code = '// 𝅘𝅥𝅯 quarter note\nsound("bd")';
+    expect(hashToCode(codeToHash(code))).toBe(code);
+  });
+
+  test('null byte roundtrip', () => {
+    const code = 'sound("bd")\u0000sound("sd")';
+    expect(hashToCode(codeToHash(code))).toBe(code);
+  });
+
+  test('10KB of ASCII roundtrip', () => {
+    const code = 'sound("bd*4").lpf(1200).room(.3)\n'.repeat(350);
+    expect(hashToCode(codeToHash(code))).toBe(code);
+  });
+
+  test('100KB of ASCII roundtrip', () => {
+    const code = 'x'.repeat(100_000);
+    expect(hashToCode(codeToHash(code))).toBe(code);
+  });
+
   test('codeToHash URL-encodes base64 specials', () => {
     const hash = codeToHash('a'.repeat(50));
     expect(hash).not.toMatch(/\+/);

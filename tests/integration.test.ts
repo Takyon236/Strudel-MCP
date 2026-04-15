@@ -198,4 +198,71 @@ describe('integration — MCP stdio transport', () => {
     const text = responses.find((r) => r.id === 2)?.result?.content?.[0]?.text;
     expect(text?.toLowerCase()).toContain('error');
   });
+
+  test('tools/call with unknown tool name returns error', async () => {
+    const responses = await callServer([
+      INIT,
+      INITIALIZED,
+      {
+        jsonrpc: '2.0',
+        id: 2,
+        method: 'tools/call',
+        params: { name: 'does_not_exist', arguments: {} },
+      },
+    ]);
+    const r = responses.find((r) => r.id === 2);
+    // The server should respond with an error OR a result indicating failure
+    expect(r).toBeDefined();
+    expect(r?.error || r?.result?.isError).toBeTruthy();
+  });
+
+  test('multiple sequential tools/call in one session', async () => {
+    const responses = await callServer([
+      INIT,
+      INITIALIZED,
+      {
+        jsonrpc: '2.0',
+        id: 2,
+        method: 'tools/call',
+        params: { name: 'strudel_docs', arguments: { topic: 'lpf' } },
+      },
+      {
+        jsonrpc: '2.0',
+        id: 3,
+        method: 'tools/call',
+        params: {
+          name: 'strudel_theory',
+          arguments: { action: 'list-scales' },
+        },
+      },
+      {
+        jsonrpc: '2.0',
+        id: 4,
+        method: 'tools/call',
+        params: { name: 'strudel_sounds', arguments: { category: 'banks' } },
+      },
+    ]);
+    expect(responses.find((r) => r.id === 2)?.result?.content).toBeDefined();
+    expect(responses.find((r) => r.id === 3)?.result?.content).toBeDefined();
+    expect(responses.find((r) => r.id === 4)?.result?.content).toBeDefined();
+  });
+
+  test('tools/call with invalid arguments returns schema error', async () => {
+    const responses = await callServer([
+      INIT,
+      INITIALIZED,
+      {
+        jsonrpc: '2.0',
+        id: 2,
+        method: 'tools/call',
+        params: {
+          name: 'strudel_compose',
+          arguments: { style: 'not-a-real-style' },
+        },
+      },
+    ]);
+    const r = responses.find((r) => r.id === 2);
+    // Should surface as an error from zod validation
+    expect(r?.error || r?.result?.isError).toBeTruthy();
+  });
 });

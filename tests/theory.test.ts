@@ -213,3 +213,68 @@ describe('theory — strudel formatters', () => {
     expect(pat).toMatch(/^<.+>$/);
   });
 });
+
+describe('theory — 12 keys × I-IV-V in major', () => {
+  const roots = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+  for (const root of roots) {
+    test(`${root}:major I-IV-V produces 3 valid chords`, () => {
+      const chords = progressionInScale(['I', 'IV', 'V'], `${root}:major`);
+      expect(chords).not.toBe(null);
+      expect(chords!.length).toBe(3);
+      for (const c of chords!) {
+        expect(c.midi.length).toBeGreaterThanOrEqual(3);
+      }
+    });
+  }
+});
+
+describe('theory — 12 keys × i-iv-v in minor', () => {
+  const roots = ['c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#', 'a', 'a#', 'b'];
+  for (const root of roots) {
+    test(`${root}:minor i-iv-v produces real minor chords`, () => {
+      const chords = progressionInScale(['i', 'iv', 'v'], `${root}:minor`);
+      expect(chords).not.toBe(null);
+      // Every chord's third interval should be minor (3 semitones) for i/iv/v
+      for (const c of chords!) {
+        const root_ = c.midi[0];
+        const third = c.midi[1];
+        const interval = ((third - root_) % 12 + 12) % 12;
+        expect(interval).toBe(3);
+      }
+    });
+  }
+});
+
+describe('theory — extended chord qualities', () => {
+  test('minor 9', () => {
+    const c = parseChordSymbol('Cm9');
+    expect(c).not.toBe(null);
+    expect(c!.midi.length).toBe(5);
+  });
+
+  test('dominant 9', () => {
+    const c = parseChordSymbol('C9');
+    expect(c!.midi.length).toBe(5);
+  });
+
+  test('half-diminished m7b5', () => {
+    const c = parseChordSymbol('Cm7b5');
+    expect(c).not.toBe(null);
+    expect(pitchClasses(c!)).toEqual([0, 3, 6, 10]);
+  });
+
+  test('augmented', () => {
+    const c = parseChordSymbol('Caug');
+    expect(pitchClasses(c!)).toEqual([0, 4, 8]);
+  });
+
+  test('diminished 7', () => {
+    const c = parseChordSymbol('Cdim7');
+    expect(pitchClasses(c!)).toEqual([0, 3, 6, 9]);
+  });
+
+  test('sus2', () => {
+    const c = parseChordSymbol('Csus2');
+    expect(pitchClasses(c!)).toEqual([0, 2, 7]);
+  });
+});
