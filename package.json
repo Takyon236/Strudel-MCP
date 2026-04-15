@@ -1,0 +1,41 @@
+{
+  "name": "strudel-mcp",
+  "version": "0.1.0",
+  "description": "Model Context Protocol server for the Strudel live-coding music language",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "strudel-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": [
+    "mcp",
+    "strudel",
+    "tidalcycles",
+    "livecoding",
+    "music",
+    "claude"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
