@@ -15,7 +15,11 @@
     "dev": "tsx src/index.ts",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "test": "bun test tests",
+    "test:unit": "bun test tests/encode.test.ts tests/validate.test.ts tests/theory.test.ts tests/library.test.ts tests/knowledge.test.ts",
+    "test:tools": "bun test tests/tools.test.ts",
+    "test:integration": "bun run build && bun test tests/integration.test.ts"
   },
   "keywords": [
     "mcp",
