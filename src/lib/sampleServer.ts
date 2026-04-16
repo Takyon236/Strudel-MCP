@@ -65,9 +65,17 @@ async function startServer(): Promise<number> {
         return;
       }
 
-      const decoded = decodeURIComponent(req.url?.slice(1) ?? '');
-      const filename = path.basename(decoded);
-      if (!filename || filename.includes('..') || decoded.includes('/')) {
+      const rawPath = decodeURIComponent(req.url ?? '/');
+
+      if (rawPath === '/play' || rawPath.startsWith('/play?')) {
+        const code = new URL(req.url ?? '/', `http://${req.headers.host}`).searchParams.get('code') ?? '';
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.end(generatePlayerHtml(code));
+        return;
+      }
+
+      const filename = path.basename(rawPath.slice(1));
+      if (!filename || filename.includes('..')) {
         res.writeHead(400);
         res.end('Bad Request');
         return;
@@ -219,3 +227,33 @@ export async function listSamples(port: number): Promise<SampleInfo[]> {
   }
   return results;
 }
+
+function generatePlayerHtml(code: string): string {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strudel MCP Player</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #0a0a0a; color: #eee; font-family: system-ui; }
+  header { padding: 10px 20px; border-bottom: 1px solid #222; font-size: 13px; display: flex; align-items: center; gap: 12px; }
+  header code { background: #1a1a1a; padding: 2px 6px; border-radius: 4px; color: #ffb86c; }
+  strudel-repl { display: block; height: calc(100vh - 44px); width: 100%; }
+</style>
+</head>
+<body>
+<header>Strudel MCP Player — <code>samples use relative URLs (same-origin)</code></header>
+<script type="application/strudel-pattern" id="strudel-code">${code.replace(/<\/(script)/gi, '<\\/$1')}</script>
+<script src="https://unpkg.com/@strudel/embed@latest"><\/script>
+<script>
+  const raw = document.getElementById('strudel-code').textContent;
+  const repl = document.createElement('strudel-repl');
+  repl.setAttribute('code', raw.trim());
+  document.body.appendChild(repl);
+<\/script>
+</body>
+</html>`;
+}
+
+export { generatePlayerHtml };
