@@ -131,6 +131,115 @@ describe('knowledge — effects', () => {
   });
 });
 
+describe('knowledge — effects regression (Batch 2)', () => {
+  test('filter envelope controls exist', () => {
+    expect(findEffect('lpenv')).toBeDefined();
+    expect(findEffect('lpa')).toBeDefined();
+    expect(findEffect('lpd')).toBeDefined();
+    expect(findEffect('lps')).toBeDefined();
+    expect(findEffect('lpr')).toBeDefined();
+    expect(findEffect('hpenv')).toBeDefined();
+    expect(findEffect('bpenv')).toBeDefined();
+    expect(findEffect('ftype')).toBeDefined();
+    expect(findEffect('djf')).toBeDefined();
+  });
+
+  test('orbit and ducking controls exist', () => {
+    expect(findEffect('orbit')).toBeDefined();
+    expect(findEffect('duckorbit')).toBeDefined();
+    expect(findEffect('duckattack')).toBeDefined();
+    expect(findEffect('duckdepth')).toBeDefined();
+    expect(findEffect('compressor')).toBeDefined();
+    expect(findEffect('postgain')).toBeDefined();
+  });
+
+  test('pitch envelope controls exist', () => {
+    expect(findEffect('penv')).toBeDefined();
+    expect(findEffect('pattack')).toBeDefined();
+    expect(findEffect('pdecay')).toBeDefined();
+    expect(findEffect('prelease')).toBeDefined();
+    expect(findEffect('pcurve')).toBeDefined();
+    expect(findEffect('panchor')).toBeDefined();
+  });
+
+  test('filter alias resolution — hcutoff resolves to hpf', () => {
+    const e = EFFECTS.find((ef) => ef.aliases?.includes('hcutoff'));
+    expect(e?.name).toBe('hpf');
+    expect(findEffect('hcutoff')?.name).toBe('hpf');
+  });
+
+  test('filter alias resolution — cutoff resolves to lpf', () => {
+    const e = EFFECTS.find((ef) => ef.aliases?.includes('cutoff'));
+    expect(e?.name).toBe('lpf');
+    expect(findEffect('cutoff')?.name).toBe('lpf');
+  });
+
+  test('filter alias resolution — bandf resolves to bpf', () => {
+    expect(findEffect('bandf')?.name).toBe('bpf');
+  });
+
+  test('filter alias resolution — resonance resolves to lpq', () => {
+    expect(findEffect('resonance')?.name).toBe('lpq');
+  });
+
+  test('filter alias resolution — hresonance resolves to hpq', () => {
+    expect(findEffect('hresonance')?.name).toBe('hpq');
+  });
+
+  test('lpq range fix — range includes 50', () => {
+    expect(findEffect('lpq')?.range).toMatch(/50/);
+  });
+
+  test('lpq summary fix — mentions self-oscillation', () => {
+    expect(findEffect('lpq')?.summary).toMatch(/self-oscillat/);
+  });
+
+  test('modulation extras exist', () => {
+    expect(findEffect('phaserdepth')).toBeDefined();
+    expect(findEffect('phasercenter')).toBeDefined();
+    expect(findEffect('phasersweep')).toBeDefined();
+    expect(findEffect('tremolosync')).toBeDefined();
+    expect(findEffect('tremolodepth')).toBeDefined();
+    expect(findEffect('tremoloshape')).toBeDefined();
+    expect(findEffect('vib')).toBeDefined();
+    expect(findEffect('vibmod')).toBeDefined();
+  });
+
+  test('FM synth controls exist', () => {
+    expect(findEffect('fmattack')).toBeDefined();
+    expect(findEffect('fmdecay')).toBeDefined();
+    expect(findEffect('fmsustain')).toBeDefined();
+    expect(findEffect('fmenv')).toBeDefined();
+  });
+
+  test('distortion type controls exist', () => {
+    expect(findEffect('distorttype')).toBeDefined();
+    expect(findEffect('distortvol')).toBeDefined();
+  });
+
+  test('reverb/delay extras exist', () => {
+    expect(findEffect('roomlp')).toBeDefined();
+    expect(findEffect('roomdim')).toBeDefined();
+    expect(findEffect('roomfade')).toBeDefined();
+    expect(findEffect('iresponse')).toBeDefined();
+    expect(findEffect('delaysync')).toBeDefined();
+  });
+
+  test('dfb resolves to delayfeedback', () => {
+    expect(findEffect('dfb')?.name).toBe('delayfeedback');
+  });
+
+  test('EFFECT_NAMES includes all new aliases', () => {
+    expect(EFFECT_NAMES.has('lpe')).toBe(true);
+    expect(EFFECT_NAMES.has('hcutoff')).toBe(true);
+    expect(EFFECT_NAMES.has('cutoff')).toBe(true);
+    expect(EFFECT_NAMES.has('bandf')).toBe(true);
+    expect(EFFECT_NAMES.has('resonance')).toBe(true);
+    expect(EFFECT_NAMES.has('dfb')).toBe(true);
+    expect(EFFECT_NAMES.has('o')).toBe(true);
+  });
+});
+
 describe('knowledge — sounds', () => {
   test('drum voices exist', () => {
     const names = DRUMS.map((d) => d.name);
