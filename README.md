@@ -11,9 +11,12 @@ The MCP is **knowledge-first**: the LLM writes the Strudel code, and the 8 tools
 - **8 focused tools** covering documentation, examples, sounds, music theory, composition, validation, playback, and a persistent snippet library
 - **Pre-compiled knowledge base** — no runtime network calls, no rate limits, no doc drift
 - **Handles arbitrarily long patterns** — automatic fallback to a local HTML file using `@strudel/embed` when a base64 share URL would exceed the ~2000-char markdown/browser ceiling
-- **10 genre templates** (house, techno, hip-hop, trap, dnb, jazz, ambient, psytrance, lofi, rock) with hand-tuned drum patterns, basslines, and chord progressions
-- **Span-aware static linter** that understands strings, comments, template literals, escape sequences, scale specs, chord symbols, and Strudel's mini-notation
-- **Music theory helper** — 18 scales/modes, chord symbol parser with accidentals and extensions, Roman-numeral progression resolver
+- **10 genre templates** (house, techno, hip-hop, trap, dnb, jazz, ambient, psytrance, lofi, rock) with professional-depth patterns: sidechain ducking via orbit routing, filter envelopes (lpenv), swing/humanization via `.late()`, variation via `every`/`sometimesBy`/`ply`/`degradeBy`, layered bass, and genre-authentic drum patterns
+- **71 documented functions** and **80 documented effects** — covering the modern Strudel API including voicing/arp, filter/pitch envelopes, orbit routing, ducking, phaser/tremolo/vibrato, FM synthesis, and distortion types
+- **98 sound entries** — 18 drum machine banks, 16 synths, 37 GM instruments, 14 sample libraries, 13 drum voices
+- **23 curated example patterns** demonstrating real Strudel idioms: sidechain pumping, voiced arpeggios, acid bass filter envelopes, amen break chopping, euclidean polyrhythms, dub delay, perlin noise modulation, layered reese bass
+- **Span-aware static linter** that understands strings, comments, template literals, escape sequences, scale specs, chord symbols, euclidean rhythms, and Strudel's mini-notation
+- **Music theory helper** — 24 scales/modes (including phrygian dominant, hungarian minor, hirajoshi, insen), chord symbol parser with accidentals and extensions, Roman-numeral progression resolver with correct root-position voicing
 - **Zero runtime dependencies** beyond `@modelcontextprotocol/sdk` and `zod`
 - **No Playwright, no headless browser, no external services** — `open: true` uses the platform's native opener (`xdg-open` / `open` / `start`)
 
@@ -119,19 +122,25 @@ Snippets land in `~/.strudel-mcp/library/`. Override with `STRUDEL_MCP_LIBRARY=/
 
 > **You:** Make me a house beat at 124 BPM in A minor with drums, bass, and a synth lead.
 
-Claude calls `strudel_compose` with `{style: "house", tempo_bpm: 124, key: "A2:minor", elements: ["drums", "bass", "lead"]}`, runs the result through `strudel_validate`, and hands you a URL from `strudel_run`. Click it → plays in strudel.cc.
+Claude calls `strudel_compose` → produces a full pattern with four-on-the-floor kick (sidechained via `duckorbit`), offbeat hats with swing, bass with filter envelope (`lpenv`), epiano lead with `sometimesBy` variation, and a pad with slow filter sweep. Runs it through `strudel_validate`, hands you a playable URL from `strudel_run`.
 
 ### What does `.lpf` actually do?
 
 > **You:** What's the parameter range for `.lpf` in Strudel?
 
-Claude calls `strudel_docs` with `{topic: "lpf"}` → returns signature, category, range (20–20000, typical 200–8000), summary, and an example with signal modulation.
+Claude calls `strudel_docs` with `{topic: "lpf"}` → returns signature, category, range (20–20000, typical 200–8000), aliases (`cutoff`, `ctf`, `lp`), summary, and an example with signal modulation.
+
+### How do I sidechain in Strudel?
+
+> **You:** How do I make the bass pump with the kick?
+
+Claude calls `strudel_docs` with `{topic: "duckorbit"}` → learns about orbit routing and duck parameters, then writes a pattern with `s("bd*4").duckorbit(1)` and bass on `.orbit(1)`.
 
 ### Give me a ii-V-I progression in F major
 
 > **You:** Give me a ii-V-I progression in F major as Strudel code.
 
-Claude calls `strudel_theory` with `{action: "progression", progression: "ii-V-I", scale: "F3:major"}` → returns the chord symbols (Gm, C, F), their notes, and a ready-to-paste `note("...")` pattern.
+Claude calls `strudel_theory` with `{action: "progression", progression: "ii-V-I", scale: "F3:major"}` → returns the chord symbols (Gm, C, F), their notes in root position, and a ready-to-paste `note("...")` pattern.
 
 ### Save that beat
 

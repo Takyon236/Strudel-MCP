@@ -42,8 +42,11 @@ strudel_library    → persistent local snippet store (save/load/list/delete)
    `@strudel/embed` loaded from unpkg CDN. `open: true` spawns the system
    default browser via `xdg-open`/`open`/`cmd /c start` with no additional deps.
 4. **Templates for composition.** `strudel_compose` uses hand-tuned genre templates
-   (kick pattern, hat pattern, bass shape, typical progression) rather than
-   attempting free-form generation. Predictable output, LLM can modify afterwards.
+   with professional depth: discrete drum parts (each with its own effect chain),
+   sidechain ducking via `duckorbit`/`orbit`, filter envelopes (`lpenv`/`lpa`/`lpd`),
+   swing via `.late()`, variation via `every`/`sometimesBy`/`degradeBy`, and
+   genre-authentic patterns (jazz swing ride, ambient beatless, trap pitch envelope,
+   DnB half-time reese bass). Predictable output, LLM can modify afterwards.
 5. **Local library persistence.** Snippets live under
    `~/.strudel-mcp/library/<name>.json`. Override with `STRUDEL_MCP_LIBRARY` env
    var. No database, no service — just flat JSON files.
@@ -55,12 +58,12 @@ src/
   tools/                # One file per tool, thin dispatcher
     docs.ts examples.ts sounds.ts theory.ts compose.ts validate.ts run.ts library.ts
   knowledge/            # Pre-compiled Strudel reference data
-    functions.ts        # FunctionDoc[] — all known Strudel functions
-    effects.ts          # EffectDoc[] — all effects with ranges
-    sounds.ts           # Drums, drum banks, synths, sample libs, GM instruments
-    scales.ts           # Scale definitions, root parsing, progressions
-    minispec.ts         # Mini-notation rules and overview
-    examples.ts         # Curated runnable patterns with tags
+    functions.ts        # FunctionDoc[] — 71 functions (voicing, arp, layer, degrade, echo, perlin, etc.)
+    effects.ts          # EffectDoc[] — 80 effects (filter/pitch envelopes, orbit, ducking, phaser, FM, etc.)
+    sounds.ts           # 98 entries: 18 drum banks, 16 synths, 37 GM, 14 sample libs, 13 drum voices
+    scales.ts           # 24 scales (incl. phrygian dominant, hirajoshi, insen), 9 common progressions
+    minispec.ts         # 17 mini-notation rules (incl. euclidean, elongate, per-voice gain)
+    examples.ts         # 23 curated patterns demonstrating idiomatic Strudel techniques
   lib/
     encode.ts           # code2hash / hash2code + generateEmbedHtml (local HTML with @strudel/embed)
     validate.ts         # Static linter (brackets, ident check, mini-notation check)
@@ -134,8 +137,12 @@ a string fills one cycle unless modified.
 | `@n` | weighted duration |
 | `:n` | sample index |
 | `?` | 50% drop |
-| `|` | random choice |
+| `?0.2` | explicit probability drop (20%) |
+| `\|` | random choice |
 | `..` | numeric range |
+| `(n,k)` | euclidean rhythm (n hits over k steps) |
+| `_` | elongate previous event by one step |
+| `:n:g` | sample index + per-voice gain |
 
 ### Core API
 ```js
@@ -143,18 +150,34 @@ sound("bd sd hh oh")                  // play named sounds
 s("jazz*2")                           // shorthand for sound
 note("c e g b")                       // letter names + octaves
 n("0 2 4 6").scale("C:minor")         // scale degree + scale
-chord("<Cmaj7 Am7>").voicing()        // chord symbols with ireal voicing
+chord("<Cmaj7 Am7>").voicing()        // chord symbols with auto voice-leading
+.voicing().arp("0 2 1 3").note()     // arpeggiate voiced chords
+chord("<C Am>").rootNotes(2).note()  // extract bass from chord progression
 
 .bank("RolandTR909")                  // drum bank
 .lpf(1200).lpq(6)                     // low-pass filter + Q
+.lpenv(4).lpa(.01).lpd(.2)           // filter envelope (the "squelch")
+.penv(-12).pdecay(.15)               // pitch envelope (808 kick drop)
 .room(.5).delay(".8:.125:.6")         // reverb + delay
+.orbit(0).duckorbit(1)               // sidechain bus routing
+.duckdepth(.8).duckattack(.15)       // sidechain pump depth + recovery
 .gain(.8).pan(sine.range(0,1))        // level + pan
+.vib(4).vibmod(.5)                   // vibrato rate + depth
 .adsr(".02:.1:.5:.3")                 // envelope shorthand
 .fast(2).slow(2).rev()                // time transforms
 .jux(rev)                             // stereo split transform
 .off(1/8, x => x.add(7))              // layered copy with offset
+.layer(x=>x.s("saw"), x=>x.s("sq")) // multi-voice parallel layers
+.superimpose(x => x.add(12))        // layer original + transformed copy
+.echo(4, 1/8, .6)                    // musical echo (superimposed delays)
 .every(4, rev)                        // conditional every N cycles
 .sometimes(x => x.fast(2))            // probabilistic (50%)
+.sometimesBy(.3, x => x.ply(2))     // probabilistic with explicit probability
+.degrade()                            // drop 50% of events randomly
+.degradeBy(.25)                       // drop 25% of events
+.struct("x ~ x ~ ~ x ~ x")          // rhythmic structure gate
+perlin.range(200, 2000).slow(8)      // smooth noise signal for warm modulation
+irand(8)                              // random integer signal 0..7
 
 stack(a, b, c)                        // parallel layers
 cat(a, b, c)                          // sequential per cycle
@@ -207,10 +230,18 @@ bun run start         # run the built server
 ### Adding to the knowledge base
 - `functions.ts` and `effects.ts`: add a new entry to the `FUNCTIONS` or `EFFECTS`
   array. `findFunction()` / `findEffect()` are case-insensitive and strip leading `.`.
+  New names auto-flow into `FUNCTION_NAMES` / `EFFECT_NAMES` → validator's
+  `KNOWN_IDENTIFIERS`. Aliases resolve via `findEffect('cutoff')?.name === 'lpf'`.
 - `sounds.ts`: add to the right category array; `searchSounds()` covers it automatically.
+  New entries auto-flow into `ALL_SOUNDS` → `SOUND_NAMES`.
 - `examples.ts`: add to `EXAMPLES`. The `searchExamples()` scorer uses tags (weight 5)
-  > description (weight 2) > title (weight 3). Keep tags lowercase.
+  > description (weight 2) > title (weight 3). Keep tags lowercase. Every example's
+  `code` field is validated by `tests/cross-validation.test.ts` — all referenced
+  functions/effects must exist in the knowledge base.
 - `scales.ts`: add to `SCALES` with intervals as semitone offsets from root.
+- `compose.ts`: templates use `StyleTemplate` interface with `drumParts` (array of
+  discrete drum chains), `bassPart`, `leadPart`, `padPart` (functions taking key or
+  chords). Use `maj7` not `^7` in chord symbols (validator regex limitation).
 
 ### Validate-linter rules
 `src/lib/validate.ts` walks the source once:
