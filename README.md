@@ -91,6 +91,8 @@ Or edit `~/.claude/mcp.json` directly with the same JSON shape as above.
 | `strudel_validate` | Static parse and lint of a Strudel pattern |
 | `strudel_run` | Encode pattern to a `strudel.cc/#` URL **or** write a local HTML embed file |
 | `strudel_library` | Persistent local snippet store: save / load / list / delete |
+| `strudel_sample` | Download audio from YouTube/SoundCloud/URL, serve locally with CORS for Strudel |
+| `strudel_analyze` | Extract BPM, key, chords, beat grid from audio + generate spectrogram PNG |
 
 ### `strudel_run` handoff strategies
 

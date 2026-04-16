@@ -17,7 +17,7 @@ beyond the MCP SDK and zod. `strudel_run`'s `open: true` uses platform
 
 ## Architecture
 
-### Tool surface (8 tools)
+### Tool surface (10 tools)
 ```
 strudel_docs       → unified reference lookup (functions, effects, categories, concepts)
 strudel_examples   → curated runnable patterns by tag/style
@@ -27,6 +27,8 @@ strudel_compose    → template-based pattern generator (house/techno/hip-hop/�
 strudel_validate   → static parse/lint of a pattern (brackets, unknown idents, mini-notation)
 strudel_run        → URL (short patterns) or local HTML embed file (long patterns) + optional system-opener launch
 strudel_library    → persistent local snippet store (save/load/list/delete)
+strudel_sample     → download audio (YouTube/SoundCloud/URL via yt-dlp), serve locally with CORS
+strudel_analyze    → extract BPM, key, chords, beat grid from audio + generate spectrogram PNG
 ```
 
 ### Design principles
@@ -54,21 +56,27 @@ strudel_library    → persistent local snippet store (save/load/list/delete)
 ### Key files
 ```
 src/
-  index.ts              # McpServer + registerTool() for all 8 tools
+  index.ts              # McpServer + registerTool() for all 10 tools
   tools/                # One file per tool, thin dispatcher
     docs.ts examples.ts sounds.ts theory.ts compose.ts validate.ts run.ts library.ts
+    sample.ts           # Sample download + local HTTP server for Strudel
+    analyze.ts          # Audio analysis wrapper (spawns Python librosa)
   knowledge/            # Pre-compiled Strudel reference data
-    functions.ts        # FunctionDoc[] — 71 functions (voicing, arp, layer, degrade, echo, perlin, etc.)
-    effects.ts          # EffectDoc[] — 80 effects (filter/pitch envelopes, orbit, ducking, phaser, FM, etc.)
-    sounds.ts           # 98 entries: 18 drum banks, 16 synths, 37 GM, 14 sample libs, 13 drum voices
+    functions.ts        # FunctionDoc[] — 84 functions (arrange, pick, signals, voicing, arp, etc.)
+    effects.ts          # EffectDoc[] — 80 effects + aliases (att/dec/sus/rel/vel/dist)
+    sounds.ts           # 209 entries: 71 drum banks, 16 synths, 48 GM, 20 VCSL, 27 dirt, etc.
     scales.ts           # 24 scales (incl. phrygian dominant, hirajoshi, insen), 9 common progressions
-    minispec.ts         # 17 mini-notation rules (incl. euclidean, elongate, per-voice gain)
-    examples.ts         # 23 curated patterns demonstrating idiomatic Strudel techniques
+    minispec.ts         # 18 mini-notation rules (incl. euclidean, $: labeled patterns)
+    examples.ts         # 30 curated patterns (incl. arrange(), mask(), per-voice processing)
   lib/
     encode.ts           # code2hash / hash2code + generateEmbedHtml (local HTML with @strudel/embed)
     validate.ts         # Static linter (brackets, ident check, mini-notation check)
     theory.ts           # Chord symbol parser, Roman-numeral → note resolver
     library.ts          # Snippet persistence + saveExport for embed HTML files
+    sampleServer.ts     # HTTP file server (CORS), yt-dlp integration, /play REPL endpoint
+    analyzer.ts         # Python/librosa spawner for audio analysis
+scripts/
+  analyze.py            # librosa-based audio analysis (BPM, key, chords, spectrogram)
 ```
 
 ### strudel_run handoff strategies
@@ -117,6 +125,50 @@ broken URL would defeat the purpose.
 **Exports directory**: defaults to `~/.strudel-mcp/exports/`. Override with
 `STRUDEL_MCP_EXPORTS` env var. Filenames sanitized to `[a-zA-Z0-9_-]`; invalid
 input falls back to `pattern`.
+
+### strudel_sample — audio download + local server
+
+Downloads audio from YouTube, SoundCloud (via `yt-dlp`), or any direct URL.
+Saves to `~/.strudel-mcp/samples/` (override with `STRUDEL_MCP_SAMPLES`).
+
+Starts a localhost-only HTTP server (port 0, OS-assigned) with CORS headers
+so the browser-side Strudel runtime can fetch samples. The server starts on
+first call and lives for the MCP process lifetime. It also serves HTML files
+and has a `/play` endpoint for an embedded Strudel REPL.
+
+**Dependencies**: `yt-dlp` (optional, for YouTube/SoundCloud). Falls back to
+direct HTTP download for regular URLs. Zero npm dependencies — uses Node
+builtins (`http`, `https`, `fs`, `child_process`).
+
+**Known limitation**: `@strudel/embed` does not reliably load samples via the
+`samples()` API when served from localhost. The sample file serves correctly
+(HTTP 200, CORS headers present) but the embed component may not play the
+loaded audio. This needs investigation — the full strudel.cc REPL at
+`https://strudel.cc` handles sample loading differently from the embed
+web component. Workaround: paste the pattern code directly into strudel.cc
+and reference the localhost sample URL, or investigate the embed component's
+sample loading lifecycle.
+
+### strudel_analyze — audio analysis
+
+Analyzes audio files using Python + librosa to extract:
+- BPM (beat tracking)
+- Key + mode (Krumhansl-Schmuckler algorithm on chroma features)
+- Chord progression (chroma → template matching, time-stamped)
+- Beat grid + onset density
+- 3-panel spectrogram PNG (mel spectrogram, chromagram, onset+beat grid)
+
+**Architecture**: `scripts/analyze.py` (Python 3) does the actual librosa
+analysis. `src/lib/analyzer.ts` spawns it from Node, parses JSON output.
+`src/tools/analyze.ts` is the MCP tool handler that resolves file paths
+and formats the response with Strudel-ready patterns.
+
+**Dependencies**: Python 3 with `librosa`, `matplotlib`, `numpy`.
+Install: `pip install librosa matplotlib numpy`.
+
+**Spectrogram output**: saved to `~/.strudel-mcp/analysis/`. The LLM can
+read the PNG to visually understand the song structure, frequency content,
+and beat density — this is how it "listens" to music.
 
 ## Strudel Reference (for writing correct patterns)
 
