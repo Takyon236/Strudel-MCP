@@ -10,6 +10,7 @@ import { strudelCompose, composeInputSchema } from './tools/compose.js';
 import { strudelValidate, validateInputSchema } from './tools/validate.js';
 import { strudelRun, runInputSchema } from './tools/run.js';
 import { strudelLibrary, libraryInputSchema } from './tools/library.js';
+import { strudelSample, sampleInputSchema } from './tools/sample.js';
 
 const server = new McpServer({
   name: 'strudel-mcp',
@@ -111,6 +112,19 @@ server.registerTool(
     inputSchema: libraryInputSchema,
   },
   async (args) => strudelLibrary(args),
+);
+
+server.registerTool(
+  'strudel_sample',
+  {
+    title: 'Sample downloader',
+    description:
+      'Download audio from YouTube, SoundCloud, or any URL and serve it locally so Strudel can load it. ' +
+      'Returns a samples() call ready to paste. Requires yt-dlp for YouTube/SoundCloud. ' +
+      'Use action "download" with a url, or "list" to see downloaded samples.',
+    inputSchema: sampleInputSchema,
+  },
+  async (args) => strudelSample(args),
 );
 
 async function main() {

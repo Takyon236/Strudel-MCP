@@ -107,6 +107,7 @@ describe('integration — MCP stdio transport', () => {
       'strudel_examples',
       'strudel_library',
       'strudel_run',
+      'strudel_sample',
       'strudel_sounds',
       'strudel_theory',
       'strudel_validate',
