@@ -245,6 +245,40 @@ describe('theory — 12 keys × i-iv-v in minor', () => {
   }
 });
 
+describe('theory — root-position chord fix', () => {
+  test('V in C:major is in root position (G4 B4 D5)', () => {
+    const chords = progressionInScale(['V'], 'C:major');
+    // Each subsequent MIDI note should be >= the previous
+    const m = chords![0].midi;
+    expect(m[1]).toBeGreaterThanOrEqual(m[0]);
+    expect(m[2]).toBeGreaterThanOrEqual(m[1]);
+  });
+  test('iv in A3:minor ends above root, not below', () => {
+    const chords = progressionInScale(['iv'], 'A3:minor');
+    const m = chords![0].midi;
+    expect(m[2]).toBeGreaterThanOrEqual(m[0]);
+  });
+  test('IV in C:major is F4 A4 C5 not F4 A4 C4', () => {
+    const chords = progressionInScale(['IV'], 'C:major');
+    const m = chords![0].midi;
+    // C5 should be 72, not 60
+    expect(m[2]).toBe(72);
+  });
+});
+
+describe('theory — new scales', () => {
+  test('phrygian_dominant defined', () => {
+    expect(findScale('phrygian_dominant')).toBeDefined();
+    expect(findScale('phrygian_dominant')?.intervals).toEqual([0, 1, 4, 5, 7, 8, 10]);
+  });
+  test('hungarian_minor defined', () => {
+    expect(findScale('hungarian_minor')).toBeDefined();
+  });
+  test('hirajoshi is pentatonic (5 notes)', () => {
+    expect(findScale('hirajoshi')?.intervals.length).toBe(5);
+  });
+});
+
 describe('theory — extended chord qualities', () => {
   test('minor 9', () => {
     const c = parseChordSymbol('Cm9');

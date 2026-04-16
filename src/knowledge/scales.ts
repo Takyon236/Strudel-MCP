@@ -26,6 +26,13 @@ export const SCALES: ScaleDef[] = [
   { name: 'chromatic', intervals: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], description: 'All twelve tones', family: 'exotic' },
   { name: 'diminished', intervals: [0, 2, 3, 5, 6, 8, 9, 11], description: 'Whole-half diminished', family: 'exotic' },
   { name: 'bebop', intervals: [0, 2, 4, 5, 7, 9, 10, 11], description: 'Bebop dominant', family: 'jazz' },
+
+  { name: 'phrygian_dominant', intervals: [0, 1, 4, 5, 7, 8, 10], description: 'Phrygian dominant (Spanish / flamenco / Ahava Raba)', family: 'exotic' },
+  { name: 'hungarian_minor', intervals: [0, 2, 3, 6, 7, 8, 11], description: 'Hungarian minor / double harmonic minor', family: 'exotic' },
+  { name: 'double_harmonic', intervals: [0, 1, 4, 5, 7, 8, 11], description: 'Double harmonic major / Byzantine', family: 'exotic' },
+  { name: 'major_blues', intervals: [0, 2, 3, 4, 7, 9], description: 'Major blues (6-note with b3 blue note)', family: 'blues' },
+  { name: 'hirajoshi', intervals: [0, 2, 3, 7, 8], description: 'Japanese hirajoshi pentatonic', family: 'pentatonic' },
+  { name: 'insen', intervals: [0, 1, 5, 7, 10], description: 'Japanese insen pentatonic', family: 'pentatonic' },
 ];
 
 export const NOTE_NAMES = ['c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#', 'a', 'a#', 'b'];

@@ -63,22 +63,21 @@ export function progressionInScale(
 ): ChordInfo[] | null {
   const scale = notesInScale(scaleSpec);
   if (!scale) return null;
-  const diatonicTriads = [
-    [0, 2, 4],
-    [1, 3, 5],
-    [2, 4, 6],
-    [3, 5, 0],
-    [4, 6, 1],
-    [5, 0, 2],
-    [6, 1, 3],
-  ];
   const result: ChordInfo[] = [];
   for (const degree of progression) {
     const numeric = degree.replace(/[^ivxIVX]/g, '');
     const idx = ROMAN_TO_INDEX[numeric];
     if (idx === undefined) return null;
-    const triad = diatonicTriads[idx];
-    const midi = triad.map((i) => scale.midi[i]);
+    // Build triad: root, third, fifth — monotonically ascending.
+    // Scale has scaleLen notes. Wrap into next octave by adding 12 per wrap.
+    const scaleLen = scale.midi.length;
+    const pickDegree = (offset: number): number => {
+      const rawIdx = idx + offset;
+      const wrap = Math.floor(rawIdx / scaleLen);
+      const local = ((rawIdx % scaleLen) + scaleLen) % scaleLen;
+      return scale.midi[local] + 12 * wrap;
+    };
+    const midi = [pickDegree(0), pickDegree(2), pickDegree(4)];
     const names = midi.map((n) => {
       const pc = ((n % 12) + 12) % 12;
       const oct = Math.floor(n / 12) - 1;
