@@ -31,6 +31,9 @@ const CONTENT_TYPES: Record<string, string> = {
   '.aiff': 'audio/aiff',
   '.webm': 'audio/webm',
   '.m4a': 'audio/mp4',
+  '.html': 'text/html; charset=utf-8',
+  '.js': 'application/javascript',
+  '.json': 'application/json',
 };
 
 const AUDIO_EXTENSIONS = new Set(Object.keys(CONTENT_TYPES));
