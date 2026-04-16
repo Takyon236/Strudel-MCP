@@ -24,6 +24,7 @@ const KNOWN_IDENTIFIERS = new Set<string>([
   'setcps', 'setcpm', 'setCps', 'setCpm', 'samples', 'loadOrc', 'loadSoundFont',
   'degradeBy', 'degrade', 'chooseCycles', 'reset', 'restart', 'voicings',
   'cpm', 'cps', 'time', 'now', 'detune', 'octave',
+  'arrange', 'pickOut', 'pickRestart', 'brand', 'brandBy', 'sine2', 'saw2', 'cosine2', 'tri2', 'register', 'swing',
 ]);
 
 const SOUND_NAMES = new Set(ALL_SOUNDS.map((s) => s.name.toLowerCase()));

@@ -310,6 +310,56 @@ note("<c2 c2 eb2 f2>*2")
   .distort(.6).distorttype("diode")
   .shape(.4).decay(.3).sustain(0).gain(.8)`,
   },
+  {
+    title: 'Song structure with arrange',
+    tags: ['arrangement', 'structure', 'arrange', 'song', 'sections'],
+    description: 'Use arrange() to sequence intro, verse, and drop sections. The fundamental tool for building songs instead of loops.',
+    code: `setcpm(128/4)
+let intro = s("bd*4").bank("RolandTR909")
+let verse = stack(
+  s("bd*4").bank("RolandTR909"),
+  s("[~ hh]*4").bank("RolandTR909").gain(.6),
+  note("0*4").scale("A2:minor").s("sawtooth").lpf(800).gain(.7)
+)
+let drop = stack(
+  s("bd*4").bank("RolandTR909"),
+  s("~ cp ~ cp").bank("RolandTR909").gain(.7),
+  s("hh*16").bank("RolandTR909").gain(.5),
+  note("<0 3 5 7>*2").scale("A2:minor").s("sawtooth").lpf(2000).gain(.8)
+)
+arrange([4, intro], [8, verse], [8, drop], [4, intro])`,
+  },
+  {
+    title: 'Per-voice drum processing with layer',
+    tags: ['drums', 'layer', 'per-voice', 'processing', 'effects'],
+    description: 'Apply different effects per drum voice by splitting with layer + struct. Filter the kick, reverb the snare, hi-pass the hats.',
+    code: `setcpm(128/4)
+s("bd sd hh oh bd [sd hh] hh oh")
+  .bank("RolandTR909")
+  .layer(
+    x => x.struct("x ~ ~ ~ x ~ ~ ~").lpf(400).gain(1),
+    x => x.struct("~ x ~ ~ ~ x ~ ~").room(.4).gain(.8),
+    x => x.struct("~ ~ x ~ ~ ~ x ~").hpf(6000).gain(.5),
+    x => x.struct("~ ~ ~ x ~ ~ ~ x").hpf(4000).delay(.3).gain(.6)
+  )`,
+  },
+  {
+    title: 'Track muting with mask for arrangement',
+    tags: ['arrangement', 'mask', 'mute', 'tracks', 'structure'],
+    description: 'Use mask() with slow alternation to bring elements in and out across sections. Each mask value gates 4 bars.',
+    code: `setcpm(124/4)
+stack(
+  s("bd*4").bank("RolandTR909").gain(.95)
+    .mask("<0 1 1 1>/4"),
+  s("~ cp ~ cp").bank("RolandTR909").room(.3).gain(.7)
+    .mask("<0 0 1 1>/4"),
+  s("[~ hh]*4").bank("RolandTR909").gain(.55)
+    .mask("<0 1 1 1>/4"),
+  note("<0 0 3 5>*2").scale("A2:minor").s("sawtooth")
+    .lpf(800).decay(.15).sustain(0).gain(.8)
+    .mask("<0 0 1 1>/4")
+)`,
+  },
 ];
 
 export function searchExamples(query: string, limit = 5): Example[] {

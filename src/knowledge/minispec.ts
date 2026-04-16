@@ -108,6 +108,12 @@ export const MINI_RULES: MiniRule[] = [
     description: 'Like ? (50% drop) but ?0.1 drops only 10%, ?0.8 drops 80%. Use for thinning hi-hats or percussion.',
     example: '"hh*16?0.2" — sparse hats with 20% drop',
   },
+  {
+    syntax: '$: (labeled pattern)',
+    name: 'labeled pattern',
+    description: 'Dollar-sign prefix defines a named track. Each labeled pattern runs independently and appears in the REPL UI. Standard way to structure multi-track compositions.',
+    example: '$: drums = s("bd sd hh sd")',
+  },
 ];
 
 export const MINI_OVERVIEW = `
@@ -134,6 +140,10 @@ Core symbols:
   (n,k)  — euclidean rhythm (n beats over k steps, optional ,offset)
   _      — elongate previous event (like @2)
   :n:g   — sample index plus per-voice gain
+  $:     — labeled pattern / named track
 
 The mini language works for any value-bearing function: notes, sounds, numbers for gains/filters/etc.
+
+Labeled patterns ($:) are the standard way to structure multi-track compositions in the Strudel REPL.
+Each $: block defines a named, independent track visible in the REPL UI — e.g. "$: drums = s("bd sd hh sd")".
 `.trim();

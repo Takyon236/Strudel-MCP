@@ -216,6 +216,7 @@ export const EFFECTS: EffectDoc[] = [
     signature: '.velocity(v)',
     summary: 'Note velocity (MIDI-style).',
     range: '0–1',
+    aliases: ['vel'],
   },
   // Change 2.2: dynamics and orbit
   {
@@ -467,6 +468,7 @@ export const EFFECTS: EffectDoc[] = [
     signature: '.distort(amount)',
     summary: 'Distortion amount.',
     range: '0–1',
+    aliases: ['dist'],
   },
   {
     name: 'crush',
@@ -503,12 +505,14 @@ export const EFFECTS: EffectDoc[] = [
     signature: '.attack(seconds)',
     summary: 'Envelope attack time.',
     range: '0–5',
+    aliases: ['att'],
   },
   {
     name: 'decay',
     category: 'envelope',
     signature: '.decay(seconds)',
     summary: 'Envelope decay time.',
+    aliases: ['dec'],
   },
   {
     name: 'sustain',
@@ -516,12 +520,14 @@ export const EFFECTS: EffectDoc[] = [
     signature: '.sustain(level)',
     summary: 'Envelope sustain level.',
     range: '0–1',
+    aliases: ['sus'],
   },
   {
     name: 'release',
     category: 'envelope',
     signature: '.release(seconds)',
     summary: 'Envelope release time.',
+    aliases: ['rel'],
   },
   {
     name: 'adsr',

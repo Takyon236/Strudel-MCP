@@ -24,7 +24,7 @@ import {
 } from '../src/knowledge/sounds.js';
 import { SCALES, COMMON_PROGRESSIONS } from '../src/knowledge/scales.js';
 import { EXAMPLES, searchExamples } from '../src/knowledge/examples.js';
-import { MINI_RULES } from '../src/knowledge/minispec.js';
+import { MINI_RULES, MINI_OVERVIEW } from '../src/knowledge/minispec.js';
 
 describe('knowledge — functions', () => {
   test('has core functions', () => {
@@ -440,5 +440,154 @@ describe('knowledge — richer examples', () => {
   test('examples teach layer', () => {
     const found = EXAMPLES.find(e => e.code.includes('.layer('));
     expect(found).toBeDefined();
+  });
+});
+
+describe('knowledge — gap batch functions', () => {
+  test('arrange is registered', () => {
+    const fn = findFunction('arrange');
+    expect(fn).toBeDefined();
+    expect(fn?.category).toBe('pattern');
+    expect(fn?.example).toContain('arrange(');
+  });
+
+  test('pick is registered', () => {
+    const fn = findFunction('pick');
+    expect(fn).toBeDefined();
+    expect(fn?.category).toBe('control');
+  });
+
+  test('pickOut is registered', () => {
+    const fn = findFunction('pickOut');
+    expect(fn).toBeDefined();
+    expect(fn?.category).toBe('control');
+  });
+
+  test('pickRestart is registered', () => {
+    const fn = findFunction('pickRestart');
+    expect(fn).toBeDefined();
+    expect(fn?.category).toBe('control');
+  });
+
+  test('signal functions: sine/saw/cosine/tri/rand', () => {
+    for (const name of ['sine', 'saw', 'cosine', 'tri', 'rand']) {
+      const fn = findFunction(name);
+      expect(fn).toBeDefined();
+      expect(fn?.category).toBe('source');
+    }
+  });
+
+  test('brand is registered as source', () => {
+    const fn = findFunction('brand');
+    expect(fn).toBeDefined();
+    expect(fn?.category).toBe('source');
+  });
+
+  test('brandBy is registered with signature', () => {
+    const fn = findFunction('brandBy');
+    expect(fn).toBeDefined();
+    expect(fn?.category).toBe('source');
+    expect(fn?.signature).toContain('probability');
+  });
+
+  test('sine2 alias resolves to sine', () => {
+    const fn = findFunction('sine2');
+    expect(fn).toBeDefined();
+    expect(fn?.name).toBe('sine');
+  });
+
+  test('saw2 alias resolves to saw', () => {
+    const fn = findFunction('saw2');
+    expect(fn).toBeDefined();
+    expect(fn?.name).toBe('saw');
+  });
+
+  test('cosine2 alias resolves to cosine', () => {
+    const fn = findFunction('cosine2');
+    expect(fn).toBeDefined();
+    expect(fn?.name).toBe('cosine');
+  });
+
+  test('tri2 alias resolves to tri', () => {
+    const fn = findFunction('tri2');
+    expect(fn).toBeDefined();
+    expect(fn?.name).toBe('tri');
+  });
+
+  test('register is registered as control', () => {
+    const fn = findFunction('register');
+    expect(fn).toBeDefined();
+    expect(fn?.category).toBe('control');
+    expect(fn?.signature).toContain('name');
+  });
+
+  test('swing is registered as time', () => {
+    const fn = findFunction('swing');
+    expect(fn).toBeDefined();
+    expect(fn?.category).toBe('time');
+    expect(fn?.example).toContain('swing(');
+  });
+
+  test('all gap-batch entries appear in FUNCTION_NAMES set', () => {
+    const expected = ['arrange', 'pickOut', 'pickRestart', 'sine2', 'saw2', 'cosine2', 'tri2', 'brand', 'brandBy', 'register', 'swing'];
+    for (const name of expected) {
+      expect(FUNCTION_NAMES.has(name)).toBe(true);
+    }
+  });
+
+  test('gap-batch examples are standalone (no bare leading dot)', () => {
+    const gapFns = ['arrange', 'pickOut', 'pickRestart', 'sine', 'saw', 'cosine', 'tri', 'rand', 'brand', 'brandBy', 'register', 'swing'];
+    for (const name of gapFns) {
+      const fn = findFunction(name);
+      if (fn?.example) {
+        expect(fn.example.trimStart()).not.toMatch(/^\./);
+      }
+    }
+  });
+});
+
+describe('knowledge — batch C aliases + labeled pattern', () => {
+  test('att resolves to attack', () => {
+    expect(findEffect('att')?.name).toBe('attack');
+  });
+
+  test('dec resolves to decay', () => {
+    expect(findEffect('dec')?.name).toBe('decay');
+  });
+
+  test('sus resolves to sustain', () => {
+    expect(findEffect('sus')?.name).toBe('sustain');
+  });
+
+  test('rel resolves to release', () => {
+    expect(findEffect('rel')?.name).toBe('release');
+  });
+
+  test('vel resolves to velocity', () => {
+    expect(findEffect('vel')?.name).toBe('velocity');
+  });
+
+  test('dist resolves to distort', () => {
+    expect(findEffect('dist')?.name).toBe('distort');
+  });
+
+  test('EFFECT_NAMES includes new aliases', () => {
+    expect(EFFECT_NAMES.has('att')).toBe(true);
+    expect(EFFECT_NAMES.has('dec')).toBe(true);
+    expect(EFFECT_NAMES.has('sus')).toBe(true);
+    expect(EFFECT_NAMES.has('rel')).toBe(true);
+    expect(EFFECT_NAMES.has('vel')).toBe(true);
+    expect(EFFECT_NAMES.has('dist')).toBe(true);
+  });
+
+  test('labeled pattern rule present in MINI_RULES', () => {
+    const rule = MINI_RULES.find(r => r.name === 'labeled pattern');
+    expect(rule).toBeDefined();
+    expect(rule?.syntax).toContain('$:');
+    expect(rule?.example).toContain('$:');
+  });
+
+  test('MINI_OVERVIEW contains $:', () => {
+    expect(MINI_OVERVIEW).toContain('$:');
   });
 });
