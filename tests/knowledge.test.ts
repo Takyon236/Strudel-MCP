@@ -256,3 +256,22 @@ describe('knowledge — mini-notation rules', () => {
     }
   });
 });
+
+describe('knowledge — expanded sounds + mini', () => {
+  test('new drum banks present', () => {
+    const names = DRUM_BANKS.map(b => b.name);
+    expect(names).toContain('RolandTR606');
+    expect(names).toContain('LinnLM1');
+    expect(names).toContain('OberheimDMX');
+    expect(DRUM_BANKS.length).toBeGreaterThanOrEqual(18);
+  });
+  test('new GM instruments present', () => {
+    const names = GM_INSTRUMENTS.map(g => g.name);
+    expect(names).toContain('gm_vibraphone');
+    expect(names).toContain('gm_epiano1');
+    expect(names).toContain('gm_celesta');
+  });
+  test('mini-notation euclidean rule documented', () => {
+    expect(MINI_RULES.some(r => r.name.toLowerCase().includes('euclidean'))).toBe(true);
+  });
+});
