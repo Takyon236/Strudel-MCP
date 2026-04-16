@@ -256,3 +256,35 @@ describe('knowledge — mini-notation rules', () => {
     }
   });
 });
+
+describe('knowledge — functions regression', () => {
+  test('modern voicing API is documented', () => {
+    expect(findFunction('voicing')).toBeDefined();
+    expect(findFunction('arp')).toBeDefined();
+    expect(findFunction('voicings')).toBeDefined();
+    expect(findFunction('rootNotes')).toBeDefined();
+  });
+
+  test('idiomatic modifiers are documented', () => {
+    expect(findFunction('sometimesBy')).toBeDefined();
+    expect(findFunction('degrade')).toBeDefined();
+    expect(findFunction('degradeBy')).toBeDefined();
+    expect(findFunction('layer')).toBeDefined();
+    expect(findFunction('superimpose')).toBeDefined();
+    expect(findFunction('echo')).toBeDefined();
+  });
+
+  test('sampling utilities are documented', () => {
+    expect(findFunction('fit')).toBeDefined();
+    expect(findFunction('splice')).toBeDefined();
+    expect(findFunction('cut')).toBeDefined();
+    expect(findFunction('run')).toBeDefined();
+    expect(findFunction('irand')).toBeDefined();
+    expect(findFunction('perlin')).toBeDefined();
+  });
+
+  test('struct example uses x ~ notation', () => {
+    const fn = findFunction('struct');
+    expect(fn?.example).toMatch(/x\s*~/);
+  });
+});
