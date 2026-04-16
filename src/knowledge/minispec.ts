@@ -99,11 +99,11 @@ export const MINI_RULES: MiniRule[] = [
   {
     syntax: '_',
     name: 'elongate (underscore)',
-    description: 'Underscore stretches the previous event, equivalent to @2 but visually concise in slow patterns.',
-    example: '"<[g3,b3,e4] _ [a3,c3,e4]>" — first chord holds for 2 slots',
+    description: 'Extends the previous event by one step. Two underscores = 3 steps total, three = 4. Unlike @n (explicit duration), _ composes additively.',
+    example: '"<[g3,b3,e4] _ [a3,c3,e4]>" — first chord holds for 2 steps total',
   },
   {
-    syntax: '?p',
+    syntax: '?<probability>',
     name: 'random drop (explicit probability)',
     description: 'Like ? (50% drop) but ?0.1 drops only 10%, ?0.8 drops 80%. Use for thinning hi-hats or percussion.',
     example: '"hh*16?0.2" — sparse hats with 20% drop',
@@ -128,7 +128,7 @@ Core symbols:
   @n     — weighted duration (elongate)
   :n     — sample index
   ?      — 50% drop
-  ?p     — explicit probability drop (e.g. ?0.2 = 20% drop)
+  ?0.2   — explicit probability drop (e.g. ?0.2 = 20% drop)
   |      — random choice within a group
   ..     — numeric range
   (n,k)  — euclidean rhythm (n beats over k steps, optional ,offset)

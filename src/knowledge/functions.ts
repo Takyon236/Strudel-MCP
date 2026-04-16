@@ -305,7 +305,7 @@ export const FUNCTIONS: FunctionDoc[] = [
     category: 'pattern',
     signature: '.arp(pattern)',
     summary: 'Arpeggiate a voiced chord by indexing its notes. Pair with .voicing(). The pattern string references note indices within the current voicing (0 = lowest, 1 = next, etc).',
-    example: 'chord("<C Am F G>").voicing().arp("0 2 1 3")',
+    example: 'chord("<C Am F G>").voicing().arp("0 2 1 3").note()',
   },
   {
     name: 'rootNotes',
@@ -439,7 +439,7 @@ export const FUNCTIONS: FunctionDoc[] = [
     name: 'echoWith',
     category: 'pattern',
     signature: '.echoWith(times, time, fn)',
-    summary: 'Like echo, but applies fn to each successive copy. Used for trailing pitch-up/pitch-down ornaments.',
+    summary: 'Like echo, but applies fn to each successive copy. NOTE: recent Strudel versions changed echoWith to a tidal-style fold signature — prefer echo(n, time, (p,i) => p.transform(i)) for forward-compat.',
     example: 'note("c3").echoWith(4, 1/8, (x,n) => x.add(n*2))',
   },
   // Change 1.4 — sampling utilities

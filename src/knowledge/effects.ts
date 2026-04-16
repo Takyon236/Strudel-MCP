@@ -362,12 +362,6 @@ export const EFFECTS: EffectDoc[] = [
     signature: '.tremolo(rate)',
     summary: 'Amplitude modulation tremolo.',
   },
-  {
-    name: 'vibrato',
-    category: 'modulation',
-    signature: '.vibrato(rate)',
-    summary: 'Pitch modulation vibrato.',
-  },
   // Change 2.4: modulation controls
   {
     name: 'phaserdepth',
@@ -420,7 +414,7 @@ export const EFFECTS: EffectDoc[] = [
     category: 'modulation',
     signature: '.vib(hz)',
     summary: 'Vibrato LFO rate in Hz. Pair with .vibmod for depth.',
-    aliases: ['v'],
+    aliases: ['v', 'vibrato'],
     example: '.vib(4).vibmod(.5)',
   },
   {
@@ -492,7 +486,7 @@ export const EFFECTS: EffectDoc[] = [
     name: 'distorttype',
     category: 'distortion',
     signature: '.distorttype(type)',
-    summary: "Distortion algorithm: 'fold', 'chebyshev', 'scurve', 'diode', 'asym', 'sinefold'. Changes the character dramatically — try 'diode' for harmonic warmth, 'fold' for brutal wavefold.",
+    summary: "Distortion algorithm: 'scurve', 'soft', 'hard', 'cubic', 'fold', 'chebyshev', 'diode', 'asym', 'sinefold'. 'soft'/'hard' for classic clip, 'fold' for brutal wavefold, 'diode' for harmonic warmth, 'chebyshev' for controlled harmonics.",
     aliases: ['disttype'],
     example: '.distort(.8).distorttype("fold")',
   },
