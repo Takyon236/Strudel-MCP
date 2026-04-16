@@ -252,6 +252,64 @@ note("<c2 f2>/8")
   .lpa(2).lpd(.5)
   .room(.9).gain(.35)`,
   },
+  {
+    title: 'Synthesized drum kit (no samples)',
+    tags: ['drums', 'synthesis', 'modern', 'noise', 'fm', 'sound-design'],
+    description: 'Kick, snare, and hats built from raw oscillators and noise — no drum machine banks. The modern production approach.',
+    code: `setcpm(130/4)
+stack(
+  note("c1 ~ [~ c1] ~ ~ c1 ~ ~")
+    .s("sine").decay(.35).sustain(0)
+    .shape(.35).penv(-24).pdecay(.08).gain(1.1),
+  s("~ ~ noise ~ ~ ~ noise ~")
+    .decay(.07).sustain(0).bpf(1200).bpq(3)
+    .distort(.4).crush(10).room(.3).gain(.65),
+  s("white*16")
+    .decay("[.02 .015]*8").sustain(0)
+    .hpf(7000).gain("[.2 .45 .3 .5]*4")
+    .degradeBy(.12)
+)`,
+  },
+  {
+    title: 'FM metallic percussion',
+    tags: ['drums', 'fm', 'synthesis', 'metallic', 'modern', 'experimental'],
+    description: 'FM synthesis creates complex metallic textures impossible with samples. Change .fm() and .fmh() ratios for different timbres.',
+    code: `stack(
+  note("c5 ~ g5 ~ eb5 ~ [c5 g5] ~")
+    .s("sine").fm("<4 8 6 12>").fmh("<3 1.5 2 5>")
+    .fmdecay(.03).fmsustain(0)
+    .decay(.06).sustain(0).gain(.35)
+    .hpf(2000).room(.4).pan(.6),
+  note("c1*4").s("sine")
+    .decay(.3).sustain(0).shape(.3).gain(1)
+)`,
+  },
+  {
+    title: 'Dirt-samples modern textures',
+    tags: ['samples', 'dirt', 'modern', 'texture', 'glitch', 'future'],
+    description: 'Load the dirt-samples library for modern electronic textures, glitch, and rave sounds beyond vintage drum machines.',
+    code: `samples('github:tidalcycles/dirt-samples')
+setcpm(136/4)
+stack(
+  s("clubkick*4").gain(.9),
+  s("future:0 ~ future:2 ~").gain(.5).room(.3),
+  s("glitch:1*8").gain(.3).crush(8).hpf(3000)
+    .degradeBy(.3).pan(perlin.range(.2,.8)),
+  s("techno:0 ~ [~ techno:2] ~").gain(.4).room(.5)
+)`,
+  },
+  {
+    title: 'Detuned unison bass',
+    tags: ['bass', 'modern', 'detune', 'unison', 'synthesis'],
+    description: 'Layer slightly detuned oscillators for thick modern bass. The .add(note("0,.07,.14")) trick creates a 3-voice unison.',
+    code: `setcpm(140/4)
+note("<c2 c2 eb2 f2>*2")
+  .s("sawtooth").add(note("0,.07,.14"))
+  .lpf(perlin.range(200, 1200).slow(8))
+  .lpq(8).lpenv(4).lpa(.005).lpd(.2)
+  .distort(.6).distorttype("diode")
+  .shape(.4).decay(.3).sustain(0).gain(.8)`,
+  },
 ];
 
 export function searchExamples(query: string, limit = 5): Example[] {

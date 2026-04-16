@@ -17,6 +17,8 @@ import {
   SYNTHS,
   SAMPLE_LIBRARIES,
   GM_INSTRUMENTS,
+  VCSL_INSTRUMENTS,
+  DIRT_SAMPLES,
   ALL_SOUNDS,
   searchSounds,
 } from '../src/knowledge/sounds.js';
@@ -277,7 +279,9 @@ describe('knowledge — sounds', () => {
         DRUM_BANKS.length +
         SYNTHS.length +
         SAMPLE_LIBRARIES.length +
-        GM_INSTRUMENTS.length,
+        GM_INSTRUMENTS.length +
+        VCSL_INSTRUMENTS.length +
+        DIRT_SAMPLES.length,
     );
   });
 

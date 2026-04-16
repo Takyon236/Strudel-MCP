@@ -260,7 +260,7 @@ describe('tools — compose produces deep output', () => {
 
   test('dnb template uses half-time kick', () => {
     const out = textOf(strudelCompose({ style: 'dnb', elements: ['drums'] }));
-    expect(out).toMatch(/bd\s+~\s+~\s+~\s+~\s+~\s+~\s+bd/);
+    expect(out).toMatch(/c1\s+~\s+~\s+~\s+~\s+~\s+~\s+c1/);
   });
 });
 

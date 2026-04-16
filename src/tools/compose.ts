@@ -83,10 +83,13 @@ const STYLES: Record<StyleName, StyleTemplate> = {
     bpm: 132,
     drumBank: 'RolandTR909',
     drumParts: (_key) => [
-      `s("bd*4").bank("RolandTR909").gain(.95).duckorbit(2).duckdepth(.85).duckattack(.12)`,
-      `s("~ ~ ~ cp").bank("RolandTR909").room(.5).gain(.6)`,
-      `s("hh*16").bank("RolandTR909").gain("[.35 .5 .4 .6]*4").degradeBy(.1)`,
-      `s("~ ~ oh ~").bank("RolandTR909").gain(.5)`,
+      `note("c1*4").s("sine").decay(.3).sustain(0).shape(.35).gain(1.1)
+      .duckorbit(2).duckdepth(.85).duckattack(.12)`,
+      `s("~ ~ ~ noise").decay(.06).sustain(0).bpf(1400).bpq(3)
+      .distort(.3).room(.5).gain(.55)`,
+      `s("white*16").decay("[.02 .015]*8").sustain(0)
+      .hpf(6000).gain("[.3 .5 .35 .55]*4").degradeBy(.1)`,
+      `s("~ ~ pink ~").decay(.04).sustain(0).hpf(4000).gain(.4)`,
     ],
     bassPart: (key) =>
       `note("0*8").scale("${key}").orbit(2)
@@ -132,15 +135,21 @@ const STYLES: Record<StyleName, StyleTemplate> = {
     bpm: 140,
     drumBank: 'RolandTR808',
     drumParts: (_key) => [
-      `s("bd ~ [~ bd] ~ ~ bd ~ [~ bd]").bank("RolandTR808").gain(.95).penv(-12).pdecay(.1)`,
-      `s("~ ~ sd ~ ~ ~ sd ~").bank("RolandTR808").room(.4).gain(.85)`,
-      `s("hh*8").bank("RolandTR808").ply("<1 1 2 <2 4>>").gain("[.5 .7]*4")`,
-      `s("~ ~ ~ ~ ~ ~ oh ~").bank("RolandTR808").gain(.55)`,
+      `note("c1 ~ [~ c1] ~ ~ c1 ~ [~ c1]").s("sine")
+      .decay(.4).sustain(0).shape(.4).gain(1.1)
+      .penv(-18).pdecay(.1)`,
+      `s("~ ~ noise ~ ~ ~ noise ~").decay(.07).sustain(0)
+      .bpf(1200).bpq(3).distort(.35).crush(10)
+      .room(.4).gain(.7)`,
+      `s("white*8").decay(.025).sustain(0).hpf(7000)
+      .ply("<1 1 2 <2 4>>").gain("[.4 .65]*4")`,
+      `s("~ ~ ~ ~ ~ ~ pink ~").decay(.04).sustain(0)
+      .hpf(3000).gain(.45)`,
     ],
     bassPart: (key) =>
       `note("0 0 0 0 0 0 0 0").scale("${key}")
-      .s("sawtooth").lpf(180).lpq(6)
-      .decay(.1).sustain(0).shape(.4).gain(.9)`,
+      .s("sine").lpf(180)
+      .decay(.5).sustain(0).shape(.4).gain(1)`,
     leadPart: (key) =>
       `n("<0 ~ 3 5 ~ 7>*2").scale("${key}")
       .s("gm_lead_2_sawtooth")
@@ -156,10 +165,14 @@ const STYLES: Record<StyleName, StyleTemplate> = {
     bpm: 174,
     drumBank: 'RolandTR909',
     drumParts: (_key) => [
-      `s("bd ~ ~ ~ ~ ~ ~ bd").bank("RolandTR909").gain(.95)`,
-      `s("~ ~ ~ ~ sd ~ ~ ~").bank("RolandTR909").room(.3).gain(.9)`,
-      `s("hh*16").bank("RolandTR909").gain("[.5 .7]*8").degradeBy(.12)`,
-      `s("~ ~ rd ~").bank("RolandTR909").gain(.5)`,
+      `note("c1 ~ ~ ~ ~ ~ ~ c1").s("sine")
+      .decay(.25).sustain(0).shape(.3).gain(1.1)`,
+      `s("~ ~ ~ ~ noise ~ ~ ~").decay(.08).sustain(0)
+      .bpf(1400).bpq(4).distort(.3).room(.3).gain(.75)`,
+      `s("white*16").decay(.018).sustain(0)
+      .hpf(6500).gain("[.3 .55]*8").degradeBy(.12)`,
+      `s("~ ~ pink ~").decay(.05).sustain(0).hpf(3500)
+      .room(.4).gain(.4)`,
     ],
     bassPart: (key) =>
       `note("<0 0 0 3 ~ 0 5 ~>").scale("${key}")

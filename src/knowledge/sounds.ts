@@ -1,6 +1,6 @@
 export interface SoundEntry {
   name: string;
-  kind: 'drum' | 'bank' | 'gm' | 'synth' | 'sample';
+  kind: 'drum' | 'bank' | 'gm' | 'synth' | 'sample' | 'vcsl' | 'dirt';
   description: string;
 }
 
@@ -42,13 +42,13 @@ export const DRUM_BANKS: SoundEntry[] = [
 ];
 
 export const SYNTHS: SoundEntry[] = [
-  { name: 'sine', kind: 'synth', description: 'Sine wave oscillator' },
-  { name: 'square', kind: 'synth', description: 'Square wave oscillator' },
-  { name: 'triangle', kind: 'synth', description: 'Triangle wave oscillator' },
-  { name: 'sawtooth', kind: 'synth', description: 'Sawtooth wave oscillator' },
-  { name: 'white', kind: 'synth', description: 'White noise' },
-  { name: 'pink', kind: 'synth', description: 'Pink noise' },
-  { name: 'brown', kind: 'synth', description: 'Brown noise' },
+  { name: 'sine', kind: 'synth', description: 'Sine wave — also the basis for synthesized 808 kicks: note("c1").s("sine").decay(.5).sustain(0).shape(.3)' },
+  { name: 'square', kind: 'synth', description: 'Square wave oscillator — good for sub bass layering' },
+  { name: 'triangle', kind: 'synth', description: 'Triangle wave oscillator — softer sub bass' },
+  { name: 'sawtooth', kind: 'synth', description: 'Sawtooth wave — classic for bass, leads, pads. Detune with .add(note("0,.1"))' },
+  { name: 'white', kind: 'synth', description: 'White noise — use for synth hi-hats: s("white*16").decay(.02).sustain(0).hpf(7000)' },
+  { name: 'pink', kind: 'synth', description: 'Pink noise — warmer noise, good for snare layers and risers' },
+  { name: 'brown', kind: 'synth', description: 'Brown noise — deep rumble, use for sub-layer textures' },
   { name: 'fm', kind: 'synth', description: 'Default FM synth voice' },
   { name: 'supersaw', kind: 'synth', description: 'Layered supersaw' },
   { name: 'crackle', kind: 'synth', description: 'Subtle crackle noise (paired with .density)' },
@@ -117,12 +117,67 @@ export const GM_INSTRUMENTS: SoundEntry[] = [
   { name: 'gm_banjo', kind: 'gm', description: 'GM banjo' },
 ];
 
+export const VCSL_INSTRUMENTS: SoundEntry[] = [
+  { name: 'kawai', kind: 'vcsl', description: 'Kawai piano (default-loaded, no samples() needed)' },
+  { name: 'steinway', kind: 'vcsl', description: 'Steinway piano (default-loaded)' },
+  { name: 'snare_modern', kind: 'vcsl', description: 'Modern snare — cleaner than drum-machine snares' },
+  { name: 'snare_hi', kind: 'vcsl', description: 'High-tuned snare' },
+  { name: 'snare_low', kind: 'vcsl', description: 'Low-tuned snare' },
+  { name: 'snare_rim', kind: 'vcsl', description: 'Snare rimshot' },
+  { name: 'bassdrum1', kind: 'vcsl', description: 'Acoustic bass drum' },
+  { name: 'bassdrum2', kind: 'vcsl', description: 'Acoustic bass drum alt' },
+  { name: 'conga', kind: 'vcsl', description: 'Conga percussion — world/latin' },
+  { name: 'bongo', kind: 'vcsl', description: 'Bongo percussion' },
+  { name: 'darbuka', kind: 'vcsl', description: 'Darbuka — middle-eastern percussion' },
+  { name: 'framedrum', kind: 'vcsl', description: 'Frame drum — textural percussion' },
+  { name: 'timpani', kind: 'vcsl', description: 'Orchestral timpani' },
+  { name: 'sax', kind: 'vcsl', description: 'Saxophone (chromatic, use with note())' },
+  { name: 'sax_vib', kind: 'vcsl', description: 'Saxophone with vibrato' },
+  { name: 'harmonica', kind: 'vcsl', description: 'Harmonica (chromatic)' },
+  { name: 'harp', kind: 'vcsl', description: 'Harp — arpeggios and pads' },
+  { name: 'folkharp', kind: 'vcsl', description: 'Folk harp — smaller, brighter' },
+  { name: 'didgeridoo', kind: 'vcsl', description: 'Didgeridoo drone' },
+  { name: 'ocarina', kind: 'vcsl', description: 'Ocarina — breathy, melodic' },
+];
+
+export const DIRT_SAMPLES: SoundEntry[] = [
+  { name: 'clubkick', kind: 'dirt', description: 'Modern club kicks (load: samples("github:tidalcycles/dirt-samples"))' },
+  { name: 'hardkick', kind: 'dirt', description: 'Hard electronic kicks' },
+  { name: 'popkick', kind: 'dirt', description: 'Pop/modern kicks' },
+  { name: 'reverbkick', kind: 'dirt', description: 'Reverb-tail kicks' },
+  { name: 'future', kind: 'dirt', description: 'Future/modern electronic percussion and textures' },
+  { name: 'techno', kind: 'dirt', description: 'Techno percussion and hits' },
+  { name: 'house', kind: 'dirt', description: 'House-style percussion' },
+  { name: 'rave', kind: 'dirt', description: 'Rave stabs and percussion' },
+  { name: 'electro1', kind: 'dirt', description: 'Electro percussion' },
+  { name: 'glitch', kind: 'dirt', description: 'Glitch textures and micro-sounds' },
+  { name: 'glitch2', kind: 'dirt', description: 'More glitch textures' },
+  { name: 'industrial', kind: 'dirt', description: 'Industrial noise hits' },
+  { name: 'jungbass', kind: 'dirt', description: 'Jungle/DnB bass stabs' },
+  { name: 'jvbass', kind: 'dirt', description: 'JV synth bass notes' },
+  { name: 'moog', kind: 'dirt', description: 'Moog bass samples' },
+  { name: 'dist', kind: 'dirt', description: 'Distorted sounds' },
+  { name: 'stab', kind: 'dirt', description: 'Synth stabs — chord hits' },
+  { name: 'hit', kind: 'dirt', description: 'Percussive one-shot hits' },
+  { name: 'wobble', kind: 'dirt', description: 'Wobble bass (dubstep-style)' },
+  { name: 'hoover', kind: 'dirt', description: 'Hoover bass — rave classic' },
+  { name: 'pad', kind: 'dirt', description: 'Pad textures' },
+  { name: 'padlong', kind: 'dirt', description: 'Long sustained pads' },
+  { name: 'noise', kind: 'dirt', description: 'Noise textures' },
+  { name: 'tabla', kind: 'dirt', description: 'Tabla percussion — Indian classical' },
+  { name: 'speech', kind: 'dirt', description: 'Speech/vocal chop samples' },
+  { name: 'mouth', kind: 'dirt', description: 'Mouth sounds — beatbox, vocal perc' },
+  { name: 'sid', kind: 'dirt', description: 'SID chip sounds — 8-bit/chiptune' },
+];
+
 export const ALL_SOUNDS: SoundEntry[] = [
   ...DRUMS,
   ...DRUM_BANKS,
   ...SYNTHS,
   ...SAMPLE_LIBRARIES,
   ...GM_INSTRUMENTS,
+  ...VCSL_INSTRUMENTS,
+  ...DIRT_SAMPLES,
 ];
 
 export function searchSounds(query: string): SoundEntry[] {
