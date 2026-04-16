@@ -206,7 +206,7 @@ describe('tools — strudel_compose', () => {
 
   test('REGRESSION: jazz default key is C3:major', () => {
     const out = textOf(strudelCompose({ style: 'jazz', elements: ['bass'] }));
-    expect(out).toContain('C3:major');
+    expect(out).toContain('Cmaj7');
   });
 
   test('REGRESSION: house bass uses key scale', () => {
@@ -226,6 +226,41 @@ describe('tools — strudel_compose', () => {
     // Should not be an empty stack
     expect(out).not.toContain('stack(\n\n)');
     expect(out).toContain('bd');
+  });
+});
+
+describe('tools — compose produces deep output', () => {
+  test('house template uses sidechain', () => {
+    const out = textOf(strudelCompose({ style: 'house', elements: ['drums', 'bass'] }));
+    expect(out).toContain('duckorbit');
+    expect(out).toContain('orbit');
+    expect(out).toContain('lpenv');
+  });
+
+  test('techno template uses filter envelope', () => {
+    const out = textOf(strudelCompose({ style: 'techno', elements: ['bass'] }));
+    expect(out).toMatch(/lpenv|perlin\.range/);
+  });
+
+  test('jazz template uses voicing and arp', () => {
+    const out = textOf(strudelCompose({ style: 'jazz', elements: ['lead'] }));
+    expect(out).toContain('.voicing()');
+    expect(out).toContain('.arp(');
+  });
+
+  test('trap template uses pitch envelope on kick', () => {
+    const out = textOf(strudelCompose({ style: 'trap', elements: ['drums'] }));
+    expect(out).toContain('penv');
+  });
+
+  test('ambient template has long envelopes', () => {
+    const out = textOf(strudelCompose({ style: 'ambient', elements: ['drums', 'pad'] }));
+    expect(out).toMatch(/attack\(\s*[234]/);
+  });
+
+  test('dnb template uses half-time kick', () => {
+    const out = textOf(strudelCompose({ style: 'dnb', elements: ['drums'] }));
+    expect(out).toMatch(/bd\s+~\s+~\s+~\s+~\s+~\s+~\s+bd/);
   });
 });
 

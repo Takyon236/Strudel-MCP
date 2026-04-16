@@ -416,3 +416,25 @@ describe('knowledge — expanded sounds + mini', () => {
     expect(MINI_RULES.some(r => r.name.toLowerCase().includes('euclidean'))).toBe(true);
   });
 });
+
+describe('knowledge — richer examples', () => {
+  test('examples count expanded', () => {
+    expect(EXAMPLES.length).toBeGreaterThanOrEqual(22);
+  });
+  test('examples teach arpeggio via voicing', () => {
+    const found = EXAMPLES.find(e => e.code.includes('.voicing()') && e.code.includes('.arp('));
+    expect(found).toBeDefined();
+  });
+  test('examples teach sidechain via duckorbit', () => {
+    const found = EXAMPLES.find(e => e.code.includes('duckorbit'));
+    expect(found).toBeDefined();
+  });
+  test('examples teach filter envelope', () => {
+    const found = EXAMPLES.find(e => e.code.includes('.lpenv('));
+    expect(found).toBeDefined();
+  });
+  test('examples teach layer', () => {
+    const found = EXAMPLES.find(e => e.code.includes('.layer('));
+    expect(found).toBeDefined();
+  });
+});

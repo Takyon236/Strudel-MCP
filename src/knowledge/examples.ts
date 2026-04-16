@@ -41,7 +41,7 @@ note("<a1 a1 c2 a1 eb2 a1 g1 f1>*2")
     tags: ['pad', 'chord', 'ambient'],
     description: 'Warm sustained chord with slow low-pass sweep.',
     code: `chord("<Cmaj7 Am7 Fmaj7 G7>/2")
-  .dict('ireal').voicing()
+  .voicing()
   .s("gm_pad_2_warm")
   .lpf(sine.range(400, 3000).slow(8))
   .room(.6).gain(.5)`,
@@ -110,7 +110,7 @@ note("<[d2 f2 a2 c3] [g2 b2 d3 f3] [c3 e3 g3 b3]>")
     code: `setcpm(145/4)
 note("f1*8")
   .s("sawtooth")
-  .struct("0 1 1 1 1 1 1 1")
+  .struct("~ x x x x x x x")
   .lpf(sine.range(200, 1500).slow(4))
   .fm(2).fmh(3)
   .decay(.1).sustain(0)`,
@@ -118,10 +118,139 @@ note("f1*8")
   {
     title: 'Trap hi-hat roll',
     tags: ['drums', 'trap', 'hi-hat'],
-    description: 'Rolling trap hats with variable rate.',
+    description: 'Rolling trap hats with variable ply rate and velocity.',
     code: `s("hh*16").bank("RolandTR808")
-  .fast("<1 1 2 4>")
-  .gain("[.6 .8 1]*4")`,
+  .ply("<1 1 2 <2 4>>")
+  .gain("[.6 .8 1]*4")
+  .sometimes(x => x.hpf(2000))`,
+  },
+  {
+    title: 'Drum and bass beat',
+    tags: ['drums', 'dnb', 'breakbeat', 'half-time'],
+    description: 'Half-time DnB groove: syncopated kick, snare on beat 3, busy 16th hats.',
+    code: `setcpm(174/4)
+stack(
+  s("bd ~ ~ ~ [bd ~] ~ ~ bd").bank("RolandTR909"),
+  s("~ ~ ~ ~ ~ ~ sd ~").bank("RolandTR909"),
+  s("hh*16").bank("RolandTR909").degradeBy(.2).gain(.5)
+)`,
+  },
+  {
+    title: 'Sidechained deep house',
+    tags: ['drums', 'bass', 'house', 'sidechain', 'duck', 'orbit'],
+    description: 'Classic sidechain pump: kick on orbit 0 ducks the bass on orbit 1.',
+    code: `setcpm(124/4)
+stack(
+  s("bd*4").bank("RolandTR909")
+    .orbit(0).duckorbit(1).duckdepth(.9).duckattack(.01),
+  note("<a1 a1 c2 g1>*4")
+    .s("sawtooth")
+    .lpf(800).lpenv(3).lpa(.01).lpd(.3)
+    .orbit(1).gain(.7)
+)`,
+  },
+  {
+    title: 'Voiced chord arpeggio',
+    tags: ['arp', 'chord', 'voicing', 'melody', 'jazz'],
+    description: 'Chord voicings spread into an ascending/descending arpeggio.',
+    code: `setcpm(120/4)
+note("<Cmaj7 Am7 Fmaj7 G7>")
+  .voicing()
+  .arp("0 1 2 3 2 1")
+  .s("gm_epiano1")
+  .room(.4).gain(.7)`,
+  },
+  {
+    title: 'Acid bass with filter envelope',
+    tags: ['bass', 'acid', '303', 'envelope'],
+    description: 'TB-303 acid line driven by a punchy filter envelope.',
+    code: `setcpm(128/4)
+note("<a1 c2 a1 eb2 a1 g1 f1 a1>*2")
+  .s("sawtooth")
+  .lpf(400).lpq(14)
+  .lpenv(6).lpa(.005).lpd(.15)
+  .shape(.35).gain(.8)`,
+  },
+  {
+    title: 'Layered reese bass',
+    tags: ['bass', 'dnb', 'reese', 'layer'],
+    description: 'Classic reese bass: detuned sawtooth with sub-octave square layer.',
+    code: `setcpm(174/4)
+note("<c1 c1 eb1 f1>/2")
+  .layer(
+    x => x.s("sawtooth").vib(4).vibmod(.3),
+    x => x.s("square").add(note(12)).gain(.4)
+  )
+  .lpf(600).room(.15).gain(.7)`,
+  },
+  {
+    title: 'Amen break chop',
+    tags: ['drums', 'breakbeat', 'amen', 'dnb', 'jungle', 'chop'],
+    description: 'Sliced Amen break with occasional double-time stutter.',
+    code: `setcpm(165/4)
+samples('github:yaxu/clean-breaks')
+s("amen")
+  .fit()
+  .slice(8, "<0 1 2 3 4*2 5 6 [6 7]>*2")
+  .cut(1)
+  .rarely(x => x.ply(2))`,
+  },
+  {
+    title: 'Dub techno chord stab',
+    tags: ['chord', 'techno', 'dub', 'stab', 'delay'],
+    description: 'Sparse chord stabs with synced dotted-eighth delay.',
+    code: `setcpm(128/4)
+chord("<Cm7 Fm7>")
+  .voicing()
+  .struct("~ x ~ x ~ x ~ x")
+  .s("gm_pad_2_warm")
+  .delay(.65).delaysync(3/16)
+  .room(.5).gain(.55)`,
+  },
+  {
+    title: 'Jux and every for stereo variation',
+    tags: ['pattern', 'jux', 'every', 'stereo', 'variation'],
+    description: 'Jux splits a pattern left/right; every 4 cycles doubles the speed.',
+    code: `setcpm(120/4)
+note("c4 eb4 g4 bb4")
+  .s("sawtooth")
+  .lpf(1800).room(.3)
+  .jux(rev)
+  .every(4, x => x.fast(2))`,
+  },
+  {
+    title: 'Euclidean percussion layers',
+    tags: ['drums', 'euclidean', 'polyrhythm', 'percussion'],
+    description: 'Four Euclidean rhythms layered for a dense polyrhythmic groove.',
+    code: `stack(
+  s("bd(3,8)").bank("RolandTR909"),
+  s("cp(2,8,3)").bank("RolandTR909"),
+  s("hh(7,16)").bank("RolandTR909").gain(.55),
+  s("rim(5,16,2)").bank("RolandTR909").gain(.45)
+)`,
+  },
+  {
+    title: 'Off ornamentation',
+    tags: ['melody', 'off', 'ornament', 'arpeggio'],
+    description: 'Offset copies at 5th and octave create shimmering melodic harmonics.',
+    code: `setcpm(110/4)
+note("c4 e4 g4 b4")
+  .s("piano")
+  .off(1/8, x => x.add(7))
+  .off(1/4, x => x.add(12).gain(.4))
+  .room(.4)`,
+  },
+  {
+    title: 'Ambient drone with perlin',
+    tags: ['ambient', 'drone', 'pad', 'perlin', 'slow'],
+    description: 'Slowly evolving drone where perlin noise shapes filter and pan.',
+    code: `setcpm(30/4)
+note("<c2 f2>/8")
+  .s("sawtooth,square")
+  .lpf(perlin.range(300, 1800).slow(32))
+  .pan(perlin.range(0, 1).slow(20))
+  .lpa(2).lpd(.5)
+  .room(.9).gain(.35)`,
   },
 ];
 
