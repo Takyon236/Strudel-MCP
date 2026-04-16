@@ -102,6 +102,7 @@ describe('integration — MCP stdio transport', () => {
     expect(list?.result?.tools).toBeDefined();
     const names = list!.result!.tools.map((t: any) => t.name).sort();
     expect(names).toEqual([
+      'strudel_analyze',
       'strudel_compose',
       'strudel_docs',
       'strudel_examples',

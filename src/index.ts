@@ -11,6 +11,7 @@ import { strudelValidate, validateInputSchema } from './tools/validate.js';
 import { strudelRun, runInputSchema } from './tools/run.js';
 import { strudelLibrary, libraryInputSchema } from './tools/library.js';
 import { strudelSample, sampleInputSchema } from './tools/sample.js';
+import { strudelAnalyze, analyzeInputSchema } from './tools/analyze.js';
 
 const server = new McpServer({
   name: 'strudel-mcp',
@@ -125,6 +126,20 @@ server.registerTool(
     inputSchema: sampleInputSchema,
   },
   async (args) => strudelSample(args),
+);
+
+server.registerTool(
+  'strudel_analyze',
+  {
+    title: 'Audio analyzer',
+    description:
+      'Analyze an audio file to extract BPM, key, chord progression, beat grid, and onset density. ' +
+      'Also generates a spectrogram PNG (mel spectrogram + chromagram + beat grid). ' +
+      'Accepts a filename from ~/.strudel-mcp/samples/ or an absolute path. ' +
+      'Requires Python 3 with librosa and matplotlib installed.',
+    inputSchema: analyzeInputSchema,
+  },
+  async (args) => strudelAnalyze(args),
 );
 
 async function main() {
