@@ -115,13 +115,21 @@ async function handleList() {
     (s) => `- **${s.name}** (${formatSize(s.size)}) — \`${s.url}\``,
   );
 
+  const baseUrl = `http://127.0.0.1:${port}/`;
+  const samplesObj = samples
+    .map((s) => `  ${s.name}: ['${s.filename}']`)
+    .join(',\n');
+
   return text(
     `## Downloaded samples (${samples.length})\n\n` +
-    `Server running at http://127.0.0.1:${port}/\n\n` +
+    `Server running at ${baseUrl}\n\n` +
     lines.join('\n') +
     '\n\n### Load in Strudel:\n```js\nsamples({\n' +
-    samples.map((s) => `  ${s.name}: '${s.url}'`).join(',\n') +
-    '\n})\n```',
+    samplesObj +
+    `\n}, '${baseUrl}')\n\n` +
+    `// Or load all samples at once:\n` +
+    `samples('${baseUrl}strudel.json')\n` +
+    '```',
   );
 }
 
@@ -150,6 +158,11 @@ function formatResponse(
   serveUrl: string,
   cached: boolean,
 ): string {
+  const lastSlash = serveUrl.lastIndexOf('/');
+  const baseUrl = serveUrl.slice(0, lastSlash + 1);
+  const encodedFilename = serveUrl.slice(lastSlash + 1);
+  const rawFilename = decodeURIComponent(encodedFilename);
+
   return [
     cached ? `## Sample "${name}" (cached)` : `## Sample "${name}" downloaded`,
     '',
@@ -158,7 +171,10 @@ function formatResponse(
     '',
     '### Load in Strudel:',
     '```js',
-    `samples({ ${name}: '${serveUrl}' })`,
+    `samples({ ${name}: ['${rawFilename}'] }, '${baseUrl}')`,
+    '',
+    `// Or load all samples at once:`,
+    `samples('${baseUrl}strudel.json')`,
     '```',
     '',
     '### Example patterns:',

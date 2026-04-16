@@ -3,6 +3,7 @@ import { spawn } from 'node:child_process';
 import { patternUrl, generateEmbedHtml } from '../lib/encode.js';
 import { saveExport } from '../lib/library.js';
 import { validatePattern } from '../lib/validate.js';
+import { ensureServer } from '../lib/sampleServer.js';
 
 const URL_STRATEGY_THRESHOLD = 1200;
 const URL_SAFE_LENGTH = 2000;
@@ -31,6 +32,12 @@ export const runInputSchema = {
         'Non-blocking — the browser runs independently.',
     ),
 };
+
+const LOCAL_SAMPLE_RE = /https?:\/\/(?:127\.0\.0\.1|localhost):\d+\//;
+
+function usesLocalSamples(code: string): boolean {
+  return LOCAL_SAMPLE_RE.test(code);
+}
 
 function pickStrategy(code: string, explicit: 'auto' | 'url' | 'embed'): 'url' | 'embed' {
   if (explicit !== 'auto') return explicit;
@@ -77,6 +84,34 @@ export async function strudelRun(input: {
   }
 
   const url = patternUrl(input.code);
+
+  if (usesLocalSamples(input.code)) {
+    const port = await ensureServer();
+    const playUrl = `http://127.0.0.1:${port}/play?code=${encodeURIComponent(input.code)}`;
+
+    if (strategy === 'url') {
+      lines.push('', `**URL:** ${url}`);
+      lines.push('', '> This pattern references local samples. The strudel.cc URL will not load them due to mixed content policy (HTTPS page cannot fetch from HTTP localhost).');
+      lines.push(`**Local player URL:** ${playUrl}`);
+      if (input.open) {
+        const r = openExternal(playUrl);
+        lines.push('', r.message);
+      } else {
+        lines.push('', 'Open the local player URL in your browser, or re-call with `open: true`.');
+      }
+      return text(lines.join('\n'));
+    }
+
+    lines.push('', `**Local player URL:** ${playUrl}`);
+    lines.push('The pattern uses local samples — routing through the sample server player to avoid mixed content.');
+    if (input.open) {
+      const r = openExternal(playUrl);
+      lines.push('', r.message);
+    } else {
+      lines.push('', 'Open this URL in your browser, or re-call with `open: true`.');
+    }
+    return text(lines.join('\n'));
+  }
 
   if (strategy === 'url') {
     lines.push('', `**URL:** ${url}`);

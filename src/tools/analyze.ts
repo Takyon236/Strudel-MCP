@@ -134,13 +134,34 @@ function toStrudelChordPattern(chords: Array<{ time: number; chord: string }>): 
   return '<' + progression.map(chordToNotes).join(' ') + '>';
 }
 
+const PITCH_CLASSES = ['c', 'cs', 'd', 'ds', 'e', 'f', 'fs', 'g', 'gs', 'a', 'as', 'b'];
+
+const FLAT_TO_SHARP: Record<string, string> = {
+  cb: 'b', db: 'cs', eb: 'ds', fb: 'e', gb: 'fs', ab: 'gs', bb: 'as',
+};
+
 function chordToNotes(chord: string): string {
-  const isMinor = chord.endsWith('m');
-  const root = chord.replace(/m$/, '').toLowerCase().replace('#', 's');
-  if (isMinor) {
-    return `[${root}3,${root}3,${root}3]`;
-  }
-  return `[${root}3,${root}3,${root}3]`;
+  const rootMatch = chord.match(/^([A-G][#b]?)/);
+  if (!rootMatch) return '[c3,e3,g3]';
+
+  const rawRoot = rootMatch[1];
+  const afterRoot = chord.slice(rawRoot.length);
+  const isMinor = /^m(?!aj)/i.test(afterRoot);
+
+  const normalized = rawRoot.toLowerCase().replace('#', 's');
+  const rootPc = FLAT_TO_SHARP[normalized] ?? normalized;
+
+  const rootIdx = PITCH_CLASSES.indexOf(rootPc);
+  if (rootIdx === -1) return '[c3,e3,g3]';
+
+  const thirdIdx = (rootIdx + (isMinor ? 3 : 4)) % 12;
+  const fifthIdx = (rootIdx + 7) % 12;
+
+  const r = PITCH_CLASSES[rootIdx];
+  const t = PITCH_CLASSES[thirdIdx];
+  const f = PITCH_CLASSES[fifthIdx];
+
+  return `[${r}3,${t}3,${f}3]`;
 }
 
 function formatDuration(seconds: number): string {

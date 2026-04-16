@@ -12,6 +12,7 @@ import { strudelValidate } from '../src/tools/validate.js';
 import { strudelRun } from '../src/tools/run.js';
 import { strudelLibrary } from '../src/tools/library.js';
 import { validatePattern } from '../src/lib/validate.js';
+import { generatePlayerHtml } from '../src/lib/sampleServer.js';
 
 const TMP_BASE = path.join(os.tmpdir(), `strudel-mcp-tools-tests-${process.pid}`);
 
@@ -261,6 +262,46 @@ describe('tools — compose produces deep output', () => {
   test('dnb template uses half-time kick', () => {
     const out = textOf(strudelCompose({ style: 'dnb', elements: ['drums'] }));
     expect(out).toMatch(/c1\s+~\s+~\s+~\s+~\s+~\s+~\s+c1/);
+  });
+
+  test('REGRESSION: jazz has no bare-string .rootNotes call', () => {
+    const out = textOf(strudelCompose({ style: 'jazz', elements: ['bass', 'lead', 'pad'] }));
+    expect(out).not.toMatch(/"[^"]*"\s*\.rootNotes/);
+    expect(out).toMatch(/chord\([^)]*\)\.rootNotes/);
+  });
+
+  test('REGRESSION: jazz has no broken .voicing().s() chain', () => {
+    const out = textOf(strudelCompose({ style: 'jazz', elements: ['lead', 'pad'] }));
+    expect(out).not.toMatch(/\.voicing\(\)\s*\.s\(/);
+  });
+
+  test('REGRESSION: ambient drum parts do not include silent no-op', () => {
+    const out = textOf(strudelCompose({ style: 'ambient', elements: ['drums', 'bass'] }));
+    expect(out).not.toContain('s("~").gain(0)');
+  });
+});
+
+describe('sampleServer — generatePlayerHtml', () => {
+  test('imports soundfonts for GM voices', () => {
+    const html = generatePlayerHtml('s("bd*4")');
+    expect(html).toContain('@strudel/soundfonts');
+    expect(html).toContain('registerSoundfonts');
+  });
+
+  test('imports mini for mini-notation parsing', () => {
+    const html = generatePlayerHtml('s("bd*4")');
+    expect(html).toContain('@strudel/mini');
+  });
+
+  test('preloads dirt-samples for stock drum voices', () => {
+    const html = generatePlayerHtml('s("bd*4")');
+    expect(html).toContain('dirt-samples');
+  });
+
+  test('escapes </script> in user code', () => {
+    const html = generatePlayerHtml('</script><script>alert(1)</script>');
+    expect(html).not.toContain('</script><script>alert(1)</script>');
+    expect(html).toContain('<\\/script');
   });
 });
 

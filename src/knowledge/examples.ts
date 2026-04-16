@@ -154,10 +154,9 @@ stack(
     tags: ['arp', 'chord', 'voicing', 'melody', 'jazz'],
     description: 'Chord voicings spread into an ascending/descending arpeggio.',
     code: `setcpm(120/4)
-note("<Cmaj7 Am7 Fmaj7 G7>")
+chord("<Cmaj7 Am7 Fmaj7 G7>")
   .voicing()
   .arp("0 1 2 3 2 1")
-  .s("gm_epiano1")
   .room(.4).gain(.7)`,
   },
   {

@@ -36,7 +36,7 @@ const CONTENT_TYPES: Record<string, string> = {
   '.json': 'application/json',
 };
 
-const AUDIO_EXTENSIONS = new Set(Object.keys(CONTENT_TYPES));
+const AUDIO_EXTENSIONS = new Set(['.wav', '.mp3', '.ogg', '.flac', '.aiff', '.webm', '.m4a']);
 
 // ── HTTP server singleton ──
 
@@ -77,6 +77,28 @@ async function startServer(): Promise<number> {
         return;
       }
 
+      if (rawPath === '/strudel.json') {
+        try {
+          const files = await fs.readdir(dir);
+          const audioFiles = files.filter((f) => AUDIO_EXTENSIONS.has(path.extname(f).toLowerCase()));
+          const manifest: Record<string, string | string[]> = { '_base': './' };
+          for (const f of audioFiles) {
+            const sampleName = path.basename(f, path.extname(f));
+            manifest[sampleName] = [f];
+          }
+          const json = JSON.stringify(manifest, null, 2);
+          res.writeHead(200, {
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(json),
+          });
+          res.end(json);
+        } catch {
+          res.writeHead(500);
+          res.end('Internal Server Error');
+        }
+        return;
+      }
+
       const filename = path.basename(rawPath.slice(1));
       if (!filename || filename.includes('..')) {
         res.writeHead(400);
@@ -88,6 +110,28 @@ async function startServer(): Promise<number> {
       try {
         const stat = await fs.stat(filePath);
         const ext = path.extname(filename).toLowerCase();
+        const rangeHeader = req.headers.range;
+        res.setHeader('Accept-Ranges', 'bytes');
+        if (rangeHeader) {
+          const match = /^bytes=(\d+)-(\d*)$/.exec(rangeHeader);
+          if (match) {
+            const start = parseInt(match[1], 10);
+            const end = match[2] ? parseInt(match[2], 10) : stat.size - 1;
+            if (start > end || end >= stat.size) {
+              res.writeHead(416, { 'Content-Range': `bytes */${stat.size}` });
+              res.end();
+              return;
+            }
+            const chunkSize = end - start + 1;
+            res.writeHead(206, {
+              'Content-Type': CONTENT_TYPES[ext] ?? 'application/octet-stream',
+              'Content-Range': `bytes ${start}-${end}/${stat.size}`,
+              'Content-Length': chunkSize,
+            });
+            createReadStream(filePath, { start, end }).pipe(res);
+            return;
+          }
+        }
         res.writeHead(200, {
           'Content-Type': CONTENT_TYPES[ext] ?? 'application/octet-stream',
           'Content-Length': stat.size,
@@ -99,7 +143,8 @@ async function startServer(): Promise<number> {
       }
     });
 
-    srv.listen(0, '127.0.0.1', () => {
+    const port = parseInt(process.env.STRUDEL_MCP_SAMPLE_PORT || '0', 10);
+    srv.listen(port, '127.0.0.1', () => {
       const addr = srv.address();
       if (typeof addr === 'object' && addr) {
         resolve(addr.port);
@@ -232,6 +277,7 @@ export async function listSamples(port: number): Promise<SampleInfo[]> {
 }
 
 function generatePlayerHtml(code: string): string {
+  const escapedCode = code.replace(/<\/(script)/gi, '<\\/$1');
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -242,18 +288,83 @@ function generatePlayerHtml(code: string): string {
   html, body { margin: 0; padding: 0; height: 100%; background: #0a0a0a; color: #eee; font-family: system-ui; }
   header { padding: 10px 20px; border-bottom: 1px solid #222; font-size: 13px; display: flex; align-items: center; gap: 12px; }
   header code { background: #1a1a1a; padding: 2px 6px; border-radius: 4px; color: #ffb86c; }
-  strudel-repl { display: block; height: calc(100vh - 44px); width: 100%; }
+  #editor { width: 100%; height: calc(100vh - 100px); background: #111; color: #ffb86c; font-family: monospace; font-size: 14px; padding: 16px; border: none; resize: none; box-sizing: border-box; }
+  #controls { padding: 8px 20px; display: flex; gap: 12px; align-items: center; border-top: 1px solid #222; }
+  button { background: #1a1a1a; color: #eee; border: 1px solid #333; padding: 6px 16px; border-radius: 4px; cursor: pointer; font-size: 13px; }
+  button:hover { background: #222; }
+  button.playing { background: #2a4a2a; border-color: #4a8a4a; }
+  #status { font-size: 12px; color: #666; }
 </style>
 </head>
 <body>
-<header>Strudel MCP Player — <code>samples use relative URLs (same-origin)</code></header>
-<script type="application/strudel-pattern" id="strudel-code">${code.replace(/<\/(script)/gi, '<\\/$1')}</script>
-<script src="https://unpkg.com/@strudel/embed@latest"><\/script>
-<script>
-  const raw = document.getElementById('strudel-code').textContent;
-  const repl = document.createElement('strudel-repl');
-  repl.setAttribute('code', raw.trim());
-  document.body.appendChild(repl);
+<header>Strudel MCP Player — <code>same-origin sample server (no mixed content)</code></header>
+<script type="application/strudel-pattern" id="strudel-code">${escapedCode}<\/script>
+<textarea id="editor"></textarea>
+<div id="controls">
+  <button id="play">&#9654; Play</button>
+  <button id="stop">&#9632; Stop</button>
+  <span id="status">Ready</span>
+</div>
+<script type="module">
+import { controls, repl, Pattern, stack, silence, pure, register, setcpm, setcps, evalScope } from 'https://esm.sh/@strudel/core@latest';
+import { initAudioOnFirstClick, getAudioContext, webaudioOutput, registerSynthSounds, samples } from 'https://esm.sh/@strudel/webaudio@latest';
+import { transpiler } from 'https://esm.sh/@strudel/transpiler@latest';
+import { registerSoundfonts } from 'https://esm.sh/@strudel/soundfonts@latest';
+import 'https://esm.sh/@strudel/mini@latest';
+import 'https://esm.sh/@strudel/tonal@latest';
+
+initAudioOnFirstClick();
+
+const editor = document.getElementById('editor');
+const statusEl = document.getElementById('status');
+const codeHolder = document.getElementById('strudel-code');
+editor.value = codeHolder ? codeHolder.textContent.trim() : '';
+
+let currentRepl = null;
+let samplesLoaded = false;
+
+async function ensureSamplesLoaded() {
+  if (samplesLoaded) return;
+  statusEl.textContent = 'Loading samples...';
+  await samples('github:tidalcycles/dirt-samples');
+  await registerSoundfonts();
+  samplesLoaded = true;
+}
+
+async function doPlay() {
+  try {
+    if (currentRepl) {
+      try { currentRepl.scheduler.stop(); } catch(_) {}
+    }
+    const ctx = getAudioContext();
+    if (ctx.state === 'suspended') await ctx.resume();
+    await registerSynthSounds();
+    await ensureSamplesLoaded();
+    currentRepl = repl({
+      defaultOutput: webaudioOutput,
+      transpiler,
+    });
+    await currentRepl.evaluate(editor.value);
+    currentRepl.scheduler.start();
+    document.getElementById('play').classList.add('playing');
+    statusEl.textContent = 'Playing...';
+  } catch(e) {
+    statusEl.textContent = 'Error: ' + e.message;
+    console.error(e);
+  }
+}
+
+function doStop() {
+  if (currentRepl) {
+    try { currentRepl.scheduler.stop(); } catch(_) {}
+    currentRepl = null;
+  }
+  document.getElementById('play').classList.remove('playing');
+  statusEl.textContent = 'Stopped';
+}
+
+document.getElementById('play').addEventListener('click', doPlay);
+document.getElementById('stop').addEventListener('click', doStop);
 <\/script>
 </body>
 </html>`;

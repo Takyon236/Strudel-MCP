@@ -511,7 +511,7 @@ export const FUNCTIONS: FunctionDoc[] = [
     category: 'control',
     signature: '.pickOut(index, fn)',
     summary: 'Route a specific voice (by index) in a stack through a separate processing chain, leaving the other voices unchanged. Enables per-voice effects without splitting into separate patterns.',
-    example: 's("bd sd hh sd").layer(x => x.struct("x ~ ~ ~").lpf(400), x => x.struct("~ x ~ ~").room(.3))',
+    example: 'stack(s("bd*4"), s("hh*8"), s("cp ~ cp ~")).pickOut(1, x => x.room(.5))',
   },
   {
     name: 'pickRestart',

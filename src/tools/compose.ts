@@ -195,25 +195,24 @@ const STYLES: Record<StyleName, StyleTemplate> = {
 
   jazz: {
     bpm: 140,
-    drumBank: 'AkaiLinn',
+    drumBank: 'RolandTR808',
     drumParts: (_key) => [
-      `s("rd ~ [rd rd] rd ~ [rd rd]").bank("AkaiLinn").gain(.7)`,
-      `s("~ sd ~ sd").bank("AkaiLinn").gain(.5).late("[0 .04]*4")`,
-      `s("bd ~ ~ [~ bd]").bank("AkaiLinn").gain(.6)`,
-      `s("hh*4").bank("AkaiLinn").gain(.4).degradeBy(.4)`,
+      `s("rd ~ [rd rd] rd ~ [rd rd]").bank("RolandTR808").gain(.55).late("[0 .02]*8").pan(.4)`,
+      `s("~ sd ~ sd").bank("RolandTR808").gain(.45).late("[0 .04]*4").room(.3)`,
+      `s("bd ~ ~ [~ bd]").bank("RolandTR808").gain(.55)`,
+      `s("hh*4").bank("RolandTR808").gain(.3).degradeBy(.4).pan(-.3)`,
     ],
     bassPart: (_key) =>
-      `"<Cmaj7 Dm7 G7 Cmaj7>".rootNotes(2)
-      .note().s("gm_acoustic_bass")
+      `chord("<Cmaj7 Dm7 G7 Cmaj7>").rootNotes(2)
+      .s("gm_acoustic_bass")
       .gain(.85).late("[0 .02]*4")`,
     leadPart: (_key) =>
       `chord("<Cmaj7 Dm7 G7 Cmaj7>")
       .voicing().arp("0 1 2 3 2 1")
-      .s("gm_vibraphone")
       .clip(1.5).room(.5).gain(.55)`,
     padPart: (_chords) =>
-      `chord("<Cmaj7 Dm7 G7 Cmaj7>").voicing()
-      .s("gm_epiano1").struct("~ x ~ x")
+      `chord("<Cmaj7 Dm7 G7 Cmaj7>")
+      .struct("~ x ~ x").voicing()
       .room(.4).gain(.4)`,
     chordProgression: 'ii-V-I',
     defaultKey: 'C3:major',
@@ -222,9 +221,7 @@ const STYLES: Record<StyleName, StyleTemplate> = {
   ambient: {
     bpm: 60,
     drumBank: 'ViscoSpaceDrum',
-    drumParts: (_key) => [
-      `s("~").gain(0)`,
-    ],
+    drumParts: (_key) => [],
     bassPart: (key) =>
       `note("<0 4 7>/16").scale("${key}")
       .s("sawtooth").add(note("0"))
@@ -342,6 +339,7 @@ export function strudelCompose(input: {
 
   if (elements.includes('drums')) {
     for (const p of tpl.drumParts(key)) {
+      if (!p || !p.trim()) continue;
       stacks.push('  ' + p.replace(/\n/g, '\n  '));
     }
   }

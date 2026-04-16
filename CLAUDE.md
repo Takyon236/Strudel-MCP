@@ -140,14 +140,18 @@ and has a `/play` endpoint for an embedded Strudel REPL.
 direct HTTP download for regular URLs. Zero npm dependencies — uses Node
 builtins (`http`, `https`, `fs`, `child_process`).
 
-**Known limitation**: `@strudel/embed` does not reliably load samples via the
-`samples()` API when served from localhost. The sample file serves correctly
-(HTTP 200, CORS headers present) but the embed component may not play the
-loaded audio. This needs investigation — the full strudel.cc REPL at
-`https://strudel.cc` handles sample loading differently from the embed
-web component. Workaround: paste the pattern code directly into strudel.cc
-and reference the localhost sample URL, or investigate the embed component's
-sample loading lifecycle.
+**Local sample playback**: When `strudel_run` detects local sample-server
+URLs (`http://127.0.0.1:PORT/...`) in pattern code, it routes through the
+sample server's `/play` endpoint instead of using `@strudel/embed` (which
+would create an HTTPS iframe to `strudel.cc`, triggering mixed content
+blocking). The `/play` page loads Strudel packages directly via ES modules
+from `esm.sh` — everything runs same-origin, so `samples()` fetches to
+localhost work without mixed content or CORS issues.
+
+The sample server also provides:
+- `GET /strudel.json` — dynamic manifest for native Strudel sample discovery
+- `Accept-Ranges: bytes` + Range request support for large audio files
+- `STRUDEL_MCP_SAMPLE_PORT` env var for a fixed port (default: OS-assigned)
 
 ### strudel_analyze — audio analysis
 
