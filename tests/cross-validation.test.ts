@@ -55,6 +55,7 @@ describe('cross-validation — compose outputs use real knowledge base entries',
     'psytrance',
     'lofi',
     'rock',
+    'hardbass',
   ] as const;
   const soundNames = new Set(ALL_SOUNDS.map((s) => s.name));
   const bankNames = new Set(DRUM_BANKS.map((b) => b.name));

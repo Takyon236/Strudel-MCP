@@ -282,20 +282,21 @@ describe('tools — compose produces deep output', () => {
 });
 
 describe('sampleServer — generatePlayerHtml', () => {
-  test('imports soundfonts for GM voices', () => {
+  test('loads @strudel/repl bundle (includes prebake: soundfonts + dirt-samples + drum machines)', () => {
     const html = generatePlayerHtml('s("bd*4")');
-    expect(html).toContain('@strudel/soundfonts');
-    expect(html).toContain('registerSoundfonts');
+    expect(html).toContain('unpkg.com/@strudel/repl');
   });
 
-  test('imports mini for mini-notation parsing', () => {
+  test('uses strudel-editor web component for inline REPL (no iframe)', () => {
     const html = generatePlayerHtml('s("bd*4")');
-    expect(html).toContain('@strudel/mini');
+    expect(html).toContain('strudel-editor');
+    expect(html).not.toContain('@strudel/embed');
   });
 
-  test('preloads dirt-samples for stock drum voices', () => {
-    const html = generatePlayerHtml('s("bd*4")');
-    expect(html).toContain('dirt-samples');
+  test('embeds code in script holder and sets it on the element', () => {
+    const html = generatePlayerHtml('unique_test_marker_abc');
+    expect(html).toContain('unique_test_marker_abc');
+    expect(html).toContain("setAttribute('code'");
   });
 
   test('escapes </script> in user code', () => {
@@ -360,8 +361,8 @@ describe('tools — strudel_run', () => {
     expect(match).not.toBe(null);
     const file = match![1];
     const html = await fs.readFile(file, 'utf-8');
-    expect(html).toContain('@strudel/embed');
-    expect(html).toContain('strudel-repl');
+    expect(html).toContain('unpkg.com/@strudel/repl');
+    expect(html).toContain('strudel-editor');
   });
 
   test('backup URL omitted when too long', async () => {

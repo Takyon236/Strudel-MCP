@@ -15,9 +15,9 @@ export const runInputSchema = {
     .optional()
     .default('auto')
     .describe(
-      '"url" → return strudel.cc/#<base64> share URL. ' +
-        '"embed" → write a local HTML file using @strudel/embed (no URL length limit). ' +
-        '"auto" (default) → URL for short patterns (<1500 chars), embed for longer ones.',
+      '"url" → return strudel.cc/#<base64> share URL (subject to ~2000-char URL limit). ' +
+        '"embed" → write a standalone HTML file with code embedded in the body and Strudel loaded via the @strudel/repl web component from unpkg (no URL length limit — works for arbitrarily long patterns). ' +
+        '"auto" (default) → URL for short patterns (<1200 chars), embed for longer ones.',
     ),
   name: z
     .string()
@@ -156,7 +156,7 @@ export async function strudelRun(input: {
     lines.push(`**Backup strudel.cc URL:** ${url} (${url.length} chars)`);
   } else {
     lines.push(
-      `**Backup URL omitted:** would be ${url.length} chars — above the 2000-char safe threshold.`,
+      `**Backup URL omitted:** would be ${url.length} chars — above the 2000-char safe threshold. The embed file has the full pattern regardless.`,
     );
   }
 
@@ -164,7 +164,7 @@ export async function strudelRun(input: {
     const r = openExternal(file);
     lines.push('', r.message);
     lines.push(
-      'The embedded Strudel REPL will load in your browser with the pattern pre-filled. Click play to hear it.',
+      'Standalone player will load in your browser with the pattern pre-filled (loads @strudel/repl from unpkg). Ctrl+Enter to play, Ctrl+. to stop.',
     );
   } else {
     lines.push(

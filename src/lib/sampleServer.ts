@@ -5,6 +5,7 @@ import os from 'node:os';
 import http from 'node:http';
 import https from 'node:https';
 import { spawn } from 'node:child_process';
+import { generatePlayerHtml } from './encode.js';
 
 const DEFAULT_DIR = path.join(os.homedir(), '.strudel-mcp', 'samples');
 
@@ -274,100 +275,6 @@ export async function listSamples(port: number): Promise<SampleInfo[]> {
     });
   }
   return results;
-}
-
-function generatePlayerHtml(code: string): string {
-  const escapedCode = code.replace(/<\/(script)/gi, '<\\/$1');
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Strudel MCP Player</title>
-<style>
-  html, body { margin: 0; padding: 0; height: 100%; background: #0a0a0a; color: #eee; font-family: system-ui; }
-  header { padding: 10px 20px; border-bottom: 1px solid #222; font-size: 13px; display: flex; align-items: center; gap: 12px; }
-  header code { background: #1a1a1a; padding: 2px 6px; border-radius: 4px; color: #ffb86c; }
-  #editor { width: 100%; height: calc(100vh - 100px); background: #111; color: #ffb86c; font-family: monospace; font-size: 14px; padding: 16px; border: none; resize: none; box-sizing: border-box; }
-  #controls { padding: 8px 20px; display: flex; gap: 12px; align-items: center; border-top: 1px solid #222; }
-  button { background: #1a1a1a; color: #eee; border: 1px solid #333; padding: 6px 16px; border-radius: 4px; cursor: pointer; font-size: 13px; }
-  button:hover { background: #222; }
-  button.playing { background: #2a4a2a; border-color: #4a8a4a; }
-  #status { font-size: 12px; color: #666; }
-</style>
-</head>
-<body>
-<header>Strudel MCP Player — <code>same-origin sample server (no mixed content)</code></header>
-<script type="application/strudel-pattern" id="strudel-code">${escapedCode}<\/script>
-<textarea id="editor"></textarea>
-<div id="controls">
-  <button id="play">&#9654; Play</button>
-  <button id="stop">&#9632; Stop</button>
-  <span id="status">Ready</span>
-</div>
-<script type="module">
-import { controls, repl, Pattern, stack, silence, pure, register, setcpm, setcps, evalScope } from 'https://esm.sh/@strudel/core@latest';
-import { initAudioOnFirstClick, getAudioContext, webaudioOutput, registerSynthSounds, samples } from 'https://esm.sh/@strudel/webaudio@latest';
-import { transpiler } from 'https://esm.sh/@strudel/transpiler@latest';
-import { registerSoundfonts } from 'https://esm.sh/@strudel/soundfonts@latest';
-import 'https://esm.sh/@strudel/mini@latest';
-import 'https://esm.sh/@strudel/tonal@latest';
-
-initAudioOnFirstClick();
-
-const editor = document.getElementById('editor');
-const statusEl = document.getElementById('status');
-const codeHolder = document.getElementById('strudel-code');
-editor.value = codeHolder ? codeHolder.textContent.trim() : '';
-
-let currentRepl = null;
-let samplesLoaded = false;
-
-async function ensureSamplesLoaded() {
-  if (samplesLoaded) return;
-  statusEl.textContent = 'Loading samples...';
-  await samples('github:tidalcycles/dirt-samples');
-  await registerSoundfonts();
-  samplesLoaded = true;
-}
-
-async function doPlay() {
-  try {
-    if (currentRepl) {
-      try { currentRepl.scheduler.stop(); } catch(_) {}
-    }
-    const ctx = getAudioContext();
-    if (ctx.state === 'suspended') await ctx.resume();
-    await registerSynthSounds();
-    await ensureSamplesLoaded();
-    currentRepl = repl({
-      defaultOutput: webaudioOutput,
-      transpiler,
-    });
-    await currentRepl.evaluate(editor.value);
-    currentRepl.scheduler.start();
-    document.getElementById('play').classList.add('playing');
-    statusEl.textContent = 'Playing...';
-  } catch(e) {
-    statusEl.textContent = 'Error: ' + e.message;
-    console.error(e);
-  }
-}
-
-function doStop() {
-  if (currentRepl) {
-    try { currentRepl.scheduler.stop(); } catch(_) {}
-    currentRepl = null;
-  }
-  document.getElementById('play').classList.remove('playing');
-  statusEl.textContent = 'Stopped';
-}
-
-document.getElementById('play').addEventListener('click', doPlay);
-document.getElementById('stop').addEventListener('click', doStop);
-<\/script>
-</body>
-</html>`;
 }
 
 export { generatePlayerHtml };

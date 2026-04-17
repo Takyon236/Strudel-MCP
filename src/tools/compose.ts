@@ -13,6 +13,7 @@ const STYLE_NAMES = [
   'psytrance',
   'lofi',
   'rock',
+  'hardbass',
 ] as const;
 type StyleName = (typeof STYLE_NAMES)[number];
 
@@ -316,6 +317,51 @@ const STYLES: Record<StyleName, StyleTemplate> = {
       `note("${chords}").slow(4).s("gm_pad_3_polysynth")
       .attack(.5).release(2).room(.4).gain(.4)`,
     chordProgression: 'I-V-vi-IV',
+  },
+
+  hardbass: {
+    bpm: 154,
+    drumBank: 'RolandTR909',
+    drumParts: (_key) => [
+      `stack(
+        s("hardkick:0*4").gain(1.15).shape(.55).penv(-8).pdecay(.04)
+          .decay(.22).sustain(0).lpf(6500).hpf(40).room(.06),
+        note("a1*4").s("sine").attack(.001).decay(.18).sustain(0)
+          .shape(.3).gain(.85)
+      ).duckorbit(2).duckdepth(.9).duckattack(.1)`,
+      `s("~ cp ~ cp").gain(.85).room(.2).hpf(600).shape(.2)`,
+      `s("hh*16").gain("[.2 .35 .25 .45]*4").hpf(7500)
+        .pan(sine.range(.35,.65).fast(4))`,
+      `s("cr").struct("x ~ ~ ~ ~ ~ ~ ~").gain(.5).room(.5).hpf(300)`,
+    ],
+    bassPart: (key) =>
+      `stack(
+        note("<0 0 5 6>").scale("${key}")
+          .struct("~ x ~ x ~ x ~ x").s("sawtooth")
+          .attack(.001).decay(.09).sustain(0).release(.03)
+          .lpf(550).lpq(7).shape(.85).gain(1.05),
+        note("<0 0 5 6>").scale("${key}").add(-12)
+          .struct("~ x ~ x ~ x ~ x").s("sine")
+          .attack(.001).decay(.1).sustain(0).gain(.5)
+      ).orbit(2)`,
+    leadPart: (key) =>
+      `stack(
+        n("7 11 13 14 13 11 10 11").scale("${key}")
+          .s("hoover").attack(.015).decay(.5).sustain(.4).release(.3)
+          .lpf(perlin.range(1500, 4500).slow(8)).lpq(4)
+          .room(.5).delay(".35:.1875:.45").gain(.5),
+        n("14 18 20 21 20 18 17 18").scale("${key}")
+          .s("supersaw").attack(.02).decay(.4).sustain(.3).release(.25)
+          .lpf(perlin.range(2000, 5500).slow(8)).lpq(3).detune(.3)
+          .room(.55).delay(".35:.125:.5").pan(sine.range(.25,.75).slow(4))
+          .gain(.35)
+      ).orbit(2)`,
+    padPart: (chords) =>
+      `note("${chords}").slow(4).s("supersaw")
+      .attack(.8).decay(.4).sustain(.8).release(2).detune(.4)
+      .lpf(1500).lpq(2).room(.7).delay(".5:.25:.6").gain(.3).orbit(2)`,
+    chordProgression: 'i-VI-VII',
+    defaultKey: 'A2:minor',
   },
 };
 

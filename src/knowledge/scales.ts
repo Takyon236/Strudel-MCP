@@ -84,5 +84,6 @@ export const COMMON_PROGRESSIONS: Record<string, string[]> = {
   '12-bar-blues': ['I', 'I', 'I', 'I', 'IV', 'IV', 'I', 'I', 'V', 'IV', 'I', 'V'],
   'i-VI-III-VII': ['i', 'VI', 'III', 'VII'],
   'i-iv-v': ['i', 'iv', 'v'],
+  'i-VI-VII': ['i', 'VI', 'VII'],
   'andalusian': ['i', 'VII', 'VI', 'V'],
 };

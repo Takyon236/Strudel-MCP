@@ -97,14 +97,20 @@ describe('encode — generateEmbedHtml', () => {
     expect(html).toContain('<body>');
   });
 
-  test('references @strudel/embed CDN', () => {
+  test('loads @strudel/repl inline web component (not @strudel/embed iframe)', () => {
     const html = generateEmbedHtml('a', 't');
-    expect(html).toContain('unpkg.com/@strudel/embed');
+    // @strudel/repl is the inline web component (bundled, includes CodeMirror + REPL)
+    expect(html).toContain('unpkg.com/@strudel/repl');
+    expect(html).toContain('strudel-editor');
+    // @strudel/embed was the iframe wrapper that inherited the URL-length limit
+    expect(html).not.toContain('@strudel/embed');
   });
 
-  test('creates strudel-repl element', () => {
+  test('creates strudel-editor element and sets code attribute', () => {
     const html = generateEmbedHtml('a', 't');
-    expect(html).toContain('strudel-repl');
+    expect(html).toContain("createElement('strudel-editor')");
+    expect(html).toContain("setAttribute('code'");
+    expect(html).toContain('whenDefined');
   });
 
   test('embeds the code into the script holder', () => {
@@ -160,9 +166,20 @@ describe('encode — generateEmbedHtml', () => {
     expect(html).not.toContain('<title><script>alert(1)</script></title>');
   });
 
-  test('has exactly 3 real </script> tags (holder + cdn + runner)', () => {
+  test('has exactly 3 real </script> tags (pattern holder + unpkg loader + bootstrap)', () => {
     const html = generateEmbedHtml('sound("bd*4")', 'test');
     const matches = html.match(/<\/script>/g) ?? [];
     expect(matches.length).toBe(3);
+  });
+
+  test('embedded code survives HTML size growth without URL-length concerns', () => {
+    // The whole point of the embed strategy: arbitrarily long patterns should work.
+    // Previous @strudel/embed approach failed silently for long patterns because
+    // the iframe URL was still strudel.cc/#<hash>.
+    const longPattern = 'stack(' + Array.from({ length: 500 }, (_, i) => `s("bd")`).join(', ') + ')';
+    const html = generateEmbedHtml(longPattern, 'long');
+    expect(html).toContain(longPattern);
+    // No reliance on URL fragment:
+    expect(html).not.toContain('strudel.cc/#');
   });
 });

@@ -359,6 +359,502 @@ stack(
     .mask("<0 0 1 1>/4")
 )`,
   },
+  {
+    title: 'Hardbass — reverse bass signature (XS Project / 2011 Russian hardbass)',
+    tags: ['hardbass', 'hardstyle', 'gabber', 'reverse-bass', 'rave', 'hoover', '154bpm'],
+    description: 'The defining hardbass signature: distorted hardkick on every beat + offbeat saw bass stabs on every "and" (the "wamp" between kicks). NOT techno with sidechain — the bass-between-kicks alternation IS the genre. Uses hardkick (gabber-lineage) and hoover (Alpha Juno rave classic), never TR-909.',
+    code: `setcpm(154/4)
+samples('github:tidalcycles/dirt-samples')
+stack(
+  s("hardkick:0*4")
+    .gain(1.2).shape(.7).penv(-8).pdecay(.05)
+    .decay(.28).sustain(0).lpf(5500).hpf(50).room(.08),
+  note("<a1 a1 f1 g1>")
+    .struct("~ x ~ x ~ x ~ x")
+    .s("sawtooth").decay(.1).sustain(0).release(.04)
+    .lpf(450).lpq(6).shape(.95)
+    .gain(1.15),
+  note("a3 e4 g4 a4 g4 e4 d4 e4")
+    .s("hoover")
+    .lpf(perlin.range(1200, 4500).slow(8)).lpq(5)
+    .room(.45).delay(".35:.1875:.5").gain(.5)
+)`,
+  },
+  {
+    title: 'Hardbass — clean production with heavy drop (layered kick + stacked lead + brass)',
+    tags: ['hardbass', 'song', 'arrangement', 'production', 'layered-kick', 'stacked-lead', 'brass', 'hardstyle', 'clean'],
+    description: 'Higher-quality hardbass production: layered kick (hardkick + sine sub at a1), clean reverse-bass with sine sub-octave, stacked lead (hoover + supersaw octave-up with slow pan-sweep), brass stabs via gm_brass_section on drop2, gm_voice_oohs pad for hardstyle euphoria, crash on phrase downbeats. Drop2 adds a third detuned panned bass layer + square octave-up lead with subtle crush as harder-variant reprise. Stereo widening via detune + pan modulation rather than global distortion. References: XS Project "Bochka Bass Kolbaser", Hard Bass School "Narkoman Pavlik".',
+    code: `samples('github:tidalcycles/dirt-samples')
+setcpm(154/4)
+
+let kick = stack(
+  s("hardkick:0*4").gain(1.15).shape(.55).penv(-8).pdecay(.04)
+    .decay(.22).sustain(0).lpf(6500).hpf(40).room(.06),
+  note("a1*4").s("sine").attack(.001).decay(.18).sustain(0)
+    .shape(.3).gain(.85)
+).orbit(1)
+
+let kickHalf = stack(
+  s("hardkick:0 ~ hardkick:0 ~").gain(1.1).shape(.55).penv(-8).pdecay(.04)
+    .decay(.22).sustain(0).lpf(6500).hpf(40).room(.08),
+  note("a1 ~ a1 ~").s("sine").attack(.001).decay(.18).sustain(0)
+    .shape(.3).gain(.85)
+).orbit(1)
+
+let bass = stack(
+  note("<a1 a1 f1 g1>")
+    .struct("~ x ~ x ~ x ~ x").s("sawtooth")
+    .attack(.001).decay(.09).sustain(0).release(.03)
+    .lpf(550).lpq(7).shape(.85).gain(1.05),
+  note("<a0 a0 f0 g0>")
+    .struct("~ x ~ x ~ x ~ x").s("sine")
+    .attack(.001).decay(.1).sustain(0).gain(.5)
+).orbit(2).duckorbit(1)
+
+let bassHard = stack(
+  note("<a1 a1 f1 g1>")
+    .struct("~ x ~ x ~ x ~ x").s("sawtooth")
+    .attack(.001).decay(.09).sustain(0).release(.03)
+    .lpf(700).lpq(9).shape(.95).distort(".5:.3").gain(1.2),
+  note("<a0 a0 f0 g0>")
+    .struct("~ x ~ x ~ x ~ x").s("sine")
+    .attack(.001).decay(.12).sustain(0).shape(.3).gain(.65),
+  note("<a1 a1 f1 g1>")
+    .struct("~ x ~ x ~ x ~ x").s("sawtooth")
+    .attack(.001).decay(.05).sustain(0).release(.02)
+    .detune(.15).lpf(2000).hpf(500).shape(.5).pan(.3).gain(.4)
+).orbit(2).duckorbit(1)
+
+let lead = stack(
+  note("a3 e4 g4 a4 g4 e4 d4 e4")
+    .s("hoover").attack(.015).decay(.5).sustain(.4).release(.3)
+    .lpf(perlin.range(1500, 4500).slow(8)).lpq(4)
+    .room(.5).delay(".35:.1875:.45").gain(.5),
+  note("a4 e5 g5 a5 g5 e5 d5 e5")
+    .s("supersaw").attack(.02).decay(.4).sustain(.3).release(.25)
+    .lpf(perlin.range(2000, 5500).slow(8)).lpq(3).detune(.3)
+    .room(.55).delay(".35:.125:.5").pan(sine.range(.25,.75).slow(4))
+    .gain(.35)
+).orbit(3).duckorbit(1)
+
+let leadHard = stack(
+  note("a3 e4 g4 a4 g4 e4 d4 e4")
+    .s("hoover").attack(.015).decay(.5).sustain(.4).release(.3)
+    .lpf(perlin.range(1800, 5500).slow(8)).lpq(5).shape(.35)
+    .room(.5).delay(".35:.1875:.45").gain(.55),
+  note("a4 e5 g5 a5 g5 e5 d5 e5")
+    .s("supersaw").attack(.02).decay(.4).sustain(.3).release(.25)
+    .lpf(perlin.range(2500, 6500).slow(8)).lpq(4).detune(.5)
+    .room(.6).delay(".35:.125:.5").pan(sine.range(.15,.85).slow(4))
+    .gain(.45),
+  note("a5 e6 g6 a6 g6 e6 d6 e6")
+    .s("square").attack(.02).decay(.3).sustain(.2).release(.2)
+    .lpf(4500).lpq(3).crush(4)
+    .room(.4).delay(".25:.1875:.4").gain(.22)
+).orbit(3).duckorbit(1)
+
+let brass = note("<[a3,c4,e4] [f3,a3,c4] [g3,b3,d4] [a3,c4,e4]>")
+  .struct("x ~ ~ ~ x ~ ~ ~").s("gm_brass_section")
+  .attack(.01).decay(.4).sustain(0).release(.2)
+  .shape(.4).lpf(3500).hpf(200)
+  .room(.35).gain(.55).orbit(4).duckorbit(1)
+
+let stab = note("<[a4,c5,e5] [f4,a4,c5] [g4,b4,d5] [a4,c5,e5]>")
+  .struct("x ~ x ~ x ~ x ~").s("supersaw")
+  .attack(.002).decay(.12).sustain(0).detune(.25)
+  .lpf(3200).lpq(3).shape(.3)
+  .room(.3).delay(".25:.125:.3").gain(.45)
+  .orbit(5).duckorbit(1)
+
+let vox = note("a5 ~ ~ g5 ~ a5 ~ e5")
+  .s("square").attack(.003).decay(.1).sustain(0)
+  .lpf(4500).vib(6).vibmod(.3).crush(5).shape(.4)
+  .room(.35).delay(".25:.125:.5").gain(.4)
+  .orbit(6).duckorbit(1)
+
+let oohs = note("<[a3,c4,e4] [f3,a3,c4] [g3,b3,d4] [a3,c4,e4]>/2")
+  .s("gm_voice_oohs")
+  .attack(.4).decay(.3).sustain(.8).release(1.5)
+  .lpf(2500).shape(.2)
+  .room(.6).gain(.35).orbit(7).duckorbit(1)
+
+let clap = s("~ cp ~ cp").gain(.85).room(.2).hpf(600).shape(.2).orbit(8)
+let hats = s("hh*16")
+  .gain("[.2 .35 .25 .45]*4").hpf(7500)
+  .pan(sine.range(.35,.65).fast(4)).orbit(8)
+let roll = s("sd*16").gain(perlin.range(.25, .95).slow(4)).hpf(300).shape(.3).orbit(8)
+let crash = s("cr").struct("x ~ ~ ~ ~ ~ ~ ~").gain(.6).room(.5).hpf(300).orbit(8)
+
+let riser = s("white").decay(4).sustain(0)
+  .hpf(sine.range(500, 9000).slow(8))
+  .gain(perlin.range(.1, .45).slow(4))
+  .room(.55).orbit(9)
+
+let pad = note("<[a3,c4,e4] [f3,a3,c4] [g3,b3,d4] [a3,c4,e4]>/4")
+  .s("supersaw").attack(.8).decay(.4).sustain(.8).release(2).detune(.4)
+  .lpf(1500).lpq(2)
+  .room(.7).delay(".5:.25:.6").gain(.3).orbit(5)
+
+let sub = note("<a1 a1 f1 g1>/2").s("sine")
+  .attack(.01).decay(.3).sustain(.4).release(.2)
+  .gain(.65).orbit(10).duckorbit(1)
+
+let intro = stack(pad, sub.gain(.4), riser.gain(.15)).duckdepth(.85).duckattack(.12)
+let intro2 = stack(kickHalf, pad, sub.gain(.5), riser.gain(.2)).duckdepth(.85).duckattack(.12)
+let build1 = stack(kickHalf, pad, stab.gain(.3), hats.gain(.4), riser.gain(.3), vox.gain(.25)).duckdepth(.88).duckattack(.1)
+let drop1 = stack(kick, bass, lead, stab, vox, clap, hats, sub.gain(.3), crash.gain(.25)).duckdepth(.9).duckattack(.1)
+let break1 = stack(pad, lead.gain(.35).lpf(900), clap.gain(.6), vox.gain(.3), oohs.gain(.3)).duckdepth(.8).duckattack(.15)
+let build2 = stack(kick, roll, hats, pad, riser.gain(.55), vox.gain(.35), oohs.gain(.25)).duckdepth(.88).duckattack(.08)
+let drop2 = stack(kick, bassHard, leadHard, brass, stab, vox, clap, hats, sub.gain(.35), oohs.gain(.4), crash.gain(.35)).duckdepth(.95).duckattack(.08)
+let outro = stack(pad, lead.gain(.3).lpf(700), sub.gain(.3), oohs.gain(.2)).duckdepth(.8).duckattack(.15)
+
+arrange(
+  [4, intro],
+  [4, intro2],
+  [8, build1],
+  [16, drop1],
+  [8, break1],
+  [8, build2],
+  [16, drop2],
+  [8, outro]
+)`,
+  },
+  {
+    title: 'Hardbass full song with Distorted Records aesthetic',
+    tags: ['hardbass', 'song', 'arrangement', 'structure', 'crush', 'coarse', 'lo-fi', 'distortion', 'arrange'],
+    description: 'Complete 7-section hardbass track (~68 cycles): intro → build → drop → break → build → drop2 → outro. Second drop applies A$AP Rocky "Distorted Records" damage — crush(2-3) + coarse(2-4) + distort + shape — to bass and lead. Same skeleton as drop1 but noticeably more destroyed. Shows arrange() with let-named sections, crush/coarse for lo-fi digital-damage aesthetic, and variation via harder-treated reprises.',
+    code: `samples('github:tidalcycles/dirt-samples')
+setcpm(154/4)
+
+let kick = s("hardkick:0*4")
+  .gain(1.2).shape(.7).penv(-8).pdecay(.05)
+  .decay(.28).sustain(0).lpf(5500).hpf(50).room(.08).orbit(1)
+
+let kickHalf = s("hardkick:0 ~ hardkick:0 ~")
+  .gain(1.15).shape(.65).penv(-8).pdecay(.05)
+  .decay(.28).sustain(0).lpf(5500).hpf(50).room(.1).orbit(1)
+
+let bass = note("<a1 a1 f1 g1>")
+  .struct("~ x ~ x ~ x ~ x").s("sawtooth")
+  .decay(.1).sustain(0).release(.04)
+  .lpf(450).lpq(6).shape(.95).crush(6)
+  .gain(1.15).orbit(2).duckorbit(1)
+
+let bassHard = note("<a1 a1 f1 g1>")
+  .struct("~ x ~ x ~ x ~ x").s("sawtooth")
+  .decay(.1).sustain(0).release(.04)
+  .lpf(550).lpq(8).shape(.98).distort(".8:.4").crush(3).coarse(2)
+  .gain(1.25).orbit(2).duckorbit(1)
+
+let hoover = note("a3 e4 g4 a4 g4 e4 d4 e4")
+  .s("hoover").decay(.5).sustain(.45).release(.3)
+  .lpf(perlin.range(1200, 4500).slow(8)).lpq(5)
+  .room(.45).delay(".35:.1875:.5")
+  .gain(.5).orbit(3).duckorbit(1)
+
+let hooverCrushed = note("a3 e4 g4 a4 g4 e4 d4 e4")
+  .s("hoover").decay(.5).sustain(.45).release(.3)
+  .lpf(perlin.range(1500, 5000).slow(8)).lpq(5)
+  .crush(3).coarse(3).shape(.6).distort(".7:.3")
+  .room(.45).delay(".35:.1875:.5")
+  .gain(.55).orbit(3).duckorbit(1)
+
+let stab = note("<[a4,c5,e5] [f4,a4,c5] [g4,b4,d5] [a4,c5,e5]>")
+  .struct("x ~ x ~ x ~ x ~").s("sawtooth")
+  .decay(.12).sustain(0).lpf(2800).lpq(4).shape(.5).crush(5)
+  .room(.3).gain(.52).orbit(4).duckorbit(1)
+
+let vox = note("a5 ~ ~ g5 ~ a5 ~ e5")
+  .s("square").decay(.1).sustain(0)
+  .lpf(4800).vib(7).vibmod(.4).crush(2).coarse(4)
+  .shape(.6).distort(".8:.3")
+  .room(.35).delay(".25:.125:.55")
+  .gain(.45).orbit(5).duckorbit(1)
+
+let clap = s("~ cp ~ cp").gain(.85).room(.25).hpf(500).orbit(6)
+
+let hats = s("hh*16")
+  .gain("[.22 .35 .28 .45]*4").hpf(7500)
+  .pan(sine.range(.35,.65).fast(4)).orbit(6)
+
+let roll = s("sd*16")
+  .gain(perlin.range(.3, .9).slow(4)).hpf(400).shape(.4).orbit(6)
+
+let riser = s("white").decay(4).sustain(0)
+  .hpf(sine.range(500, 8000).slow(8))
+  .gain(perlin.range(.15, .5).slow(4))
+  .room(.5).orbit(7)
+
+let pad = note("<[a3,c4,e4] [f3,a3,c4] [g3,b3,d4] [a3,c4,e4]>/4")
+  .s("supersaw").attack(.8).decay(.4).sustain(.8).release(2)
+  .lpf(1200).lpq(3).crush(7)
+  .room(.7).delay(".5:.25:.6").gain(.3).orbit(4)
+
+let sub = note("<a1 a1 f1 g1>/2").s("sine")
+  .attack(.01).decay(.3).sustain(.4).release(.2)
+  .gain(.7).orbit(8).duckorbit(1)
+
+let intro = stack(kickHalf, pad, sub.gain(.5), riser.gain(.15)).duckdepth(.85).duckattack(.12)
+let build1 = stack(kickHalf, pad, stab.gain(.3), hats.gain(.4), riser.gain(.3), vox.gain(.25)).duckdepth(.85).duckattack(.12)
+let drop1 = stack(kick, bass, hoover, stab, vox, clap, hats, sub.gain(.4)).duckdepth(.9).duckattack(.1)
+let break1 = stack(pad, hoover.gain(.3).lpf(800), clap.gain(.5), vox.gain(.3)).duckdepth(.8).duckattack(.15)
+let build2 = stack(kick, roll, hats, pad, riser.gain(.5), vox.gain(.3)).duckdepth(.85).duckattack(.1)
+let drop2 = stack(kick, bassHard, hooverCrushed, stab, vox, clap, hats, sub.gain(.4)).duckdepth(.9).duckattack(.08)
+let outro = stack(pad, hoover.gain(.3).lpf(600), sub.gain(.3)).duckdepth(.8).duckattack(.15)
+
+arrange(
+  [8, intro],
+  [4, build1],
+  [16, drop1],
+  [8, break1],
+  [8, build2],
+  [16, drop2],
+  [8, outro]
+)`,
+  },
+  {
+    title: 'Nightcore → hardbass finale — 170 BPM with DUDUDUDU heavy drop',
+    tags: ['nightcore', 'eurotrance', 'hardbass', 'song', 'arrangement', 'supersaw', 'chipmunk', 'arrange', 'fast', 'crush', 'distort'],
+    description: 'Complete 7-section nightcore→hardbass track (~88 cycles ≈ 2:04 at 170 BPM): build1 (gentle lead-in) → drop1 (main supersaw drop, vi-IV-I-V in A major) → break1 (piano + triangle bells + sub swell — emotional bridge) → build3 (full-power pre-drop) → drop2 (eurotrance drop with detuned hard bass + octave-up arp) → buildFinal (escalating snare roll, destructive stuttered vox) → drop3 (HARDBASS finale: DUDUDUDU offbeat crushed-sawtooth bass at shape .98 + crush 3 + coarse 2 + distort .85:.4, heavier pdecay kick, crushed/distorted arp, crushed vocal — same A major prog, heaviest texture). Key A major, vi-IV-I-V (F#m-D-A-E). Escalation arc: drop1 is clean supersaw, drop2 adds detuned layers + octave-up square, drop3 applies the hardbass destruction pipeline to bass/arp/vox. Chipmunk aesthetic from octave 5-6 note range on vocal supersaw, not pitch-shifted samples.',
+    code: `samples('github:tidalcycles/dirt-samples')
+setcpm(170/4)
+
+// Layered kick: punchy transient + sine sub for premium modern-EDM thickness
+let kick = stack(
+  s("bd*4").bank("RolandTR909")
+    .gain(.95).shape(.4).lpf(5500).hpf(60).orbit(1),
+  note("a1*4").s("sine")
+    .attack(.001).decay(.14).sustain(0)
+    .shape(.35).gain(.9).orbit(1)
+).room(.1)
+
+let kickSoft = s("bd*4").bank("RolandTR909")
+  .gain(.85).shape(.3).lpf(4500).room(.1).orbit(1)
+
+// Hardbass kick — hardkick from dirt-samples (gabber/hardstyle lineage, not TR-909)
+let kickHardbass = stack(
+  s("hardkick:2*4")
+    .gain(1.1).shape(.6).lpf(6000).hpf(50).orbit(1),
+  note("a1*4").s("sine")
+    .attack(.001).decay(.18).sustain(0)
+    .shape(.55).gain(1.0).orbit(1)
+).room(.08)
+
+let clap = s("~ cp ~ cp").bank("RolandTR909")
+  .gain(.9).shape(.25).room(.35).hpf(200)
+  .delay(".125:.1875:.3").orbit(8)
+
+let hats = s("hh*8").bank("RolandTR909")
+  .gain("[.4 .55 .45 .6]*2").shape(.15).hpf(8500)
+  .pan(sine.range(.3, .7).fast(3)).orbit(8)
+
+let openHat = s("~ ~ oh ~").bank("RolandTR909")
+  .gain(.7).room(.25).hpf(5000).orbit(8)
+
+let ride = s("rd*16").bank("RolandTR909")
+  .gain(.32).hpf(6000).pan(sine.range(.4, .6).fast(2)).orbit(8)
+
+let snareRoll = s("sd*16").bank("RolandTR909")
+  .gain(perlin.range(.3, .9).slow(4))
+  .speed(perlin.range(1, 2).slow(4))
+  .shape(.3).hpf(300).orbit(8)
+
+let crash = s("cr").struct("x ~ ~ ~ ~ ~ ~ ~")
+  .bank("RolandTR909").gain(.85).room(.7).hpf(4000).orbit(8)
+
+let bass = stack(
+  note("<fs2 d2 a2 e2>")
+    .struct("~ x ~ x ~ x ~ x").s("supersaw").detune(.22)
+    .attack(.002).decay(.11).sustain(0).release(.05)
+    .lpf(2200).lpq(6).shape(.35).gain(.85),
+  note("<fs1 d1 a1 e1>")
+    .s("sine").attack(.01).decay(.4).sustain(.4).release(.15)
+    .gain(.7)
+).orbit(2).duckorbit(1)
+
+let bassHard = stack(
+  note("<fs2 d2 a2 e2>")
+    .struct("~ x ~ x ~ x ~ x").s("supersaw").detune(.28)
+    .attack(.002).decay(.11).sustain(0).release(.05)
+    .lpf(2800).lpq(7).shape(.45).gain(.95),
+  note("<fs3 d3 a2 e3>")
+    .struct("~ x ~ x ~ x ~ x").s("supersaw").detune(.35)
+    .attack(.002).decay(.08).sustain(0)
+    .lpf(4500).pan(.3).gain(.35),
+  note("<fs1 d1 a1 e1>")
+    .s("sine").attack(.01).decay(.4).sustain(.45).gain(.75)
+).orbit(2).duckorbit(1)
+
+// HARDBASS DONK — the DUDUDUDU offbeat crushed-sawtooth bass
+// Raw sawtooth is intentional here: hardbass is the crushed/distorted thin-saw donk
+let bassHardbass = note("<fs2 d2 a2 e2>")
+  .struct("~ x ~ x ~ x ~ x").s("sawtooth")
+  .attack(.001).decay(.12).sustain(0).release(.03)
+  .lpf(650).lpq(10).shape(.98)
+  .crush(3).coarse(2).distort(".85:.4")
+  .gain(1.3).orbit(2).duckorbit(1)
+
+let arp = n("0 2 4 6 4 2 4 0 2 4 6 4 2 0 4 2")
+  .scale("A4:major")
+  .s("supersaw").detune(.35)
+  .attack(.002).decay(.1).sustain(.2).release(.08)
+  .lpf(perlin.range(2500, 7000).slow(16)).lpq(3).shape(.2)
+  .room(.5).delay(".1875:.125:.4")
+  .pan(sine.range(.25, .75).slow(5))
+  .gain(.7).orbit(3).duckorbit(1)
+
+let arpHard = stack(
+  n("0 2 4 6 4 2 4 0 2 4 6 4 2 0 4 2")
+    .scale("A4:major")
+    .s("supersaw").detune(.4)
+    .attack(.002).decay(.1).sustain(.2).release(.08)
+    .lpf(perlin.range(3000, 8000).slow(16)).lpq(3).shape(.3)
+    .room(.5).delay(".1875:.125:.4")
+    .pan(sine.range(.2, .8).slow(5))
+    .gain(.75),
+  n("0 2 4 6 4 2 4 0 2 4 6 4 2 0 4 2")
+    .scale("A5:major")
+    .s("square").attack(.002).decay(.08).sustain(.1)
+    .lpf(6500).crush(6).gain(.22)
+    .pan(sine.range(.3, .7).slow(3))
+).orbit(3).duckorbit(1)
+
+// Crushed + distorted arp for drop3 hardbass finale
+let arpDestroyed = stack(
+  n("0 2 4 6 4 2 4 0 2 4 6 4 2 0 4 2")
+    .scale("A4:major")
+    .s("supersaw").detune(.45)
+    .attack(.002).decay(.08).sustain(.18).release(.08)
+    .lpf(perlin.range(4000, 9000).slow(16)).lpq(3).shape(.45)
+    .crush(4).distort(".65:.3")
+    .room(.4).delay(".1875:.125:.4")
+    .pan(sine.range(.2, .8).slow(5))
+    .gain(.9),
+  n("0 2 4 6 4 2 4 0 2 4 6 4 2 0 4 2")
+    .scale("A5:major")
+    .s("square").attack(.002).decay(.06).sustain(.12)
+    .lpf(7000).crush(3).distort(".5:.2")
+    .pan(sine.range(.3, .7).slow(3))
+    .gain(.3)
+).orbit(3).duckorbit(1)
+
+let vox = stack(
+  note("<[a5 cs6 a5 fs5] [d5 fs5 a5 d6] [cs6 e5 a5 cs6] [b5 gs5 e5 b5]>")
+    .s("supersaw").detune(.25)
+    .attack(.04).decay(.22).sustain(.55).release(.2)
+    .vowel("<a e i o>")
+    .lpf(5500).hpf(300).shape(.15)
+    .room(.55).delay(".375:.1875:.5")
+    .pan(sine.range(.4, .6).slow(7))
+    .gain(.6),
+  note("<[a6 cs7 a6 fs6] [d6 fs6 a6 d7] [cs7 e6 a6 cs7] [b6 gs6 e6 b6]>")
+    .s("sine").attack(.08).decay(.35).sustain(.3).release(.25)
+    .room(.7).gain(.22)
+    .pan(sine.range(.35, .65).slow(3))
+).orbit(4).duckorbit(1)
+
+// Crushed + distorted vocal for drop3 hardbass finale
+let voxCrushed = stack(
+  note("<[a5 cs6 a5 fs5] [d5 fs5 a5 d6] [cs6 e5 a5 cs6] [b5 gs5 e5 b5]>")
+    .s("supersaw").detune(.3)
+    .attack(.02).decay(.2).sustain(.5).release(.18)
+    .vowel("<a e i o>")
+    .lpf(5500).hpf(300).shape(.3)
+    .crush(4).distort(".55:.25")
+    .room(.55).delay(".375:.1875:.5")
+    .pan(sine.range(.4, .6).slow(7))
+    .gain(.65),
+  note("<[a6 cs7 a6 fs6] [d6 fs6 a6 d7] [cs7 e6 a6 cs7] [b6 gs6 e6 b6]>")
+    .s("sine").attack(.08).decay(.35).sustain(.3).release(.25)
+    .room(.7).gain(.22)
+    .pan(sine.range(.35, .65).slow(3))
+).orbit(4).duckorbit(1)
+
+let voxChop = note("<[a5 cs6 a5 fs5] [d5 fs5 a5 d6] [cs6 e5 a5 cs6] [b5 gs5 e5 b5]>")
+  .s("supersaw").detune(.3)
+  .attack(.01).decay(.1).sustain(.2).release(.08)
+  .ply("<1 2 1 4 1 2 1 8>")
+  .lpf(5000).shape(.2)
+  .room(.4).delay(".25:.125:.4")
+  .gain(.5).orbit(4).duckorbit(1)
+
+let pad = note("<[fs3,a3,cs4,fs4] [d3,fs3,a3,d4] [a3,cs4,e4,a4] [e3,gs3,b3,e4]>")
+  .s("supersaw").detune(.18)
+  .attack(.5).decay(.4).sustain(.75).release(1.2)
+  .lpf(perlin.range(1500, 4500).slow(16)).lpq(2)
+  .room(.75).gain(.4).orbit(5).duckorbit(1)
+
+let padBright = note("<[fs4,a4,cs5] [d4,fs4,a4] [a4,cs5,e5] [e4,gs4,b4]>")
+  .s("supersaw").detune(.4)
+  .attack(.05).decay(.35).sustain(.55).release(.6)
+  .lpf(7000).lpq(1).hpf(400)
+  .room(.6).gain(.28).orbit(5).duckorbit(1)
+
+let piano = note("<[a4 cs5 e5 a5] [fs4 a4 d5 fs5] [e4 gs4 b4 e5] [a4 cs5 e5 a5]>")
+  .s("gm_electric_piano_1")
+  .attack(.01).decay(.3).sustain(.3).release(.4)
+  .room(.6).delay(".25:.1875:.4")
+  .pan(sine.range(.3, .7).slow(3))
+  .gain(.55).orbit(6).duckorbit(1)
+
+// Triangle-wave bells for break sparkle (counter-melody)
+let bells = note("<[a6 ~ cs7 ~] [~ d6 fs6 ~] [~ e6 ~ cs7] [b6 ~ gs6 ~]>")
+  .s("triangle")
+  .attack(.001).decay(.6).sustain(.05).release(.4)
+  .room(.85).delay(".375:.125:.6")
+  .pan(sine.range(.25, .75).slow(6))
+  .gain(.35).orbit(7)
+
+// Swelling sub for break emotional depth
+let breakSub = note("<fs1 d1 a0 e1>/4").s("sine")
+  .attack(.6).decay(.4).sustain(.6).release(.8)
+  .gain(perlin.range(.35, .6).slow(8))
+  .orbit(2)
+
+let riser = s("white").decay(4).sustain(0)
+  .hpf(sine.range(500, 9000).slow(8))
+  .gain(perlin.range(.1, .45).slow(4))
+  .room(.55).orbit(9)
+
+let sweep = s("white").struct("x ~ ~ ~ ~ ~ ~ ~")
+  .attack(.5).decay(.5).sustain(0)
+  .hpf(sine.range(2000, 8000).slow(8))
+  .gain(.3).room(.6).orbit(9)
+
+let build1 = stack(pad, padBright.gain(.15), kickSoft, hats, openHat.gain(.4), bass.gain(.6), riser.gain(.2))
+  .duckdepth(.85).duckattack(.12)
+
+let drop1 = stack(kick, clap, hats, openHat, bass, arp, vox, pad, padBright, crash, sweep.gain(.2))
+  .duckdepth(.9).duckattack(.1)
+
+// Improved break — added triangle bells + swelling sub for emotional lift
+let break1 = stack(pad, padBright.gain(.25), vox.gain(.45), piano, bells, breakSub, ride.gain(.3))
+  .duckdepth(.82).duckattack(.18)
+
+let build3 = stack(pad, padBright, vox.gain(.5), kick, hats, openHat, bass, snareRoll.gain(.55), voxChop.gain(.4), riser.gain(.5))
+  .duckdepth(.9).duckattack(.08)
+
+let drop2 = stack(kick, clap, hats, openHat, bassHard, arpHard, vox, pad, padBright, ride.gain(.25), crash, sweep.gain(.25))
+  .duckdepth(.95).duckattack(.08)
+
+// Final build — intensifying snare roll + destructive stutter vox to set up drop3
+let buildFinal = stack(kick, hats, openHat, snareRoll.gain("<.3 .45 .65 .9>"), voxChop.gain(.55), pad, padBright.gain(.45), bass.gain(.85), riser.gain(.6), sweep.gain(.4))
+  .duckdepth(.92).duckattack(.08)
+
+// HARDBASS FINALE — DUDUDUDU crushed-saw bass, destroyed arp, crushed vocal
+let drop3 = stack(kickHardbass, bassHardbass, arpDestroyed, voxCrushed, clap, hats, openHat, pad, padBright, ride.gain(.3), crash, sweep.gain(.3))
+  .duckdepth(.95).duckattack(.07)
+
+arrange(
+  [8, build1],
+  [16, drop1],
+  [8, break1],
+  [8, build3],
+  [16, drop2],
+  [8, buildFinal],
+  [16, drop3]
+)`,
+  },
 ];
 
 export function searchExamples(query: string, limit = 5): Example[] {
