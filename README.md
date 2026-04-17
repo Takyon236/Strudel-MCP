@@ -223,4 +223,6 @@ Issues and PRs welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md) for workflow, c
 
 ## License
 
-MIT — see [LICENSE](./LICENSE).
+GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later) — see [LICENSE](./LICENSE).
+
+strudel-mcp is built on and generates handoffs into [Strudel](https://github.com/tidalcycles/strudel), which is itself licensed under AGPL-3.0-or-later. This project inherits that license to respect the upstream terms. See [NOTICE](./NOTICE) for credits.

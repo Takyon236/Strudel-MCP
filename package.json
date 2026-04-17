@@ -38,7 +38,7 @@
     "music",
     "claude"
   ],
-  "license": "MIT",
+  "license": "AGPL-3.0-or-later",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",
     "zod": "^3.23.8"
