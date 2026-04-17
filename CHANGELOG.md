@@ -16,8 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Drum bank expansion** — went from 9 banks to **71** (full modern Strudel drum-machine catalog: all Roland TR-x, Linn, Oberheim, Emu, Korg, Yamaha, Alesis, Boss variants).
 - **VCSL instruments** — 20 new entries (Kawai/Steinway pianos, world/latin percussion, saxophone, harmonica, harp).
 - **Dirt-sample categories** — 27 new entries (clubkick, hardkick, rave, industrial, wobble, hoover, and more).
-- **Functions expansion** — `functions.ts` went from 43 entries to **84** (added `arrange`, `pick`, signal helpers `perlin`/`irand`, voicing/arp helpers, chord helpers, `fit`/`chop`/`slice`/`striate`, and more).
-- **Effects expansion** — `effects.ts` went from 33 entries to **80** (added `lpenv`/`lpa`/`lpd` filter envelopes, `duckorbit`/`duckdepth`/`duckattack` sidechain routing, `vib`/`vibmod`, `phaser`, `tremolo`, `coarse`, `crush`, distortion variants, and aliases like `cutoff` → `lpf`).
+- **Functions expansion** — `functions.ts` went from 43 entries to **84**. Newly added include `arrange`, `pick`, `pickOut`, `arp`, `fit`, signal helpers (`perlin`, `irand`), and additional chord/voicing/time helpers.
+- **Effects expansion** — `effects.ts` went from 33 entries to **80**. Newly added include filter envelopes (`lpenv`/`lpa`/`lpd`, plus hp/bp variants), sidechain routing (`duckorbit`/`duckdepth`/`duckattack`), vibrato (`vib`/`vibmod`), FM envelope controls (`fmattack`/`fmdecay`/`fmsustain`/`fmenv`), distortion variants (`distorttype`/`distortvol`), and aliases like `cutoff` → `lpf`.
 - **6 new scales** — `phrygian_dominant`, `hungarian_minor`, `double_harmonic`, `major_blues`, `hirajoshi`, `insen` (24 total, up from 18).
 - **Examples expansion** — went from 12 to **34** (includes layered reese bass, voiced arpeggios, amen break chopping, acid bass filter envelopes, nightcore + hardbass finale with layered kicks + supersaw).
 - **2 new genre templates** — `hip-hop` and `hardbass` (11 total, up from 9).
@@ -39,10 +39,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Jazz template syntax error (`maj7` chord symbol parsing in the validator regex).
-- Ambient template no longer produces a silent drum part.
-- `strudel_analyze` chord detector now reports triads correctly.
-- `/play` endpoint no longer strips voices from polyphonic patterns.
+- Jazz template produced broken Strudel (`"<...>".rootNotes()` on a bare string, trailing `.s()` silently ignored on `.voicing()` chains). Rewrote bass/lead/pad to use `chord("<...>").voicing().arp()` idioms and swapped the drum bank to `RolandTR808` for a proper ride cymbal.
+- Ambient template produced a silent drum part (`s("~").gain(0)` stub). Replaced with an empty `drumParts` and guarded the composer loop against empty entries.
+- `strudel_analyze`'s `chordToNotes` returned the same root-tripled pattern for major and minor triads. Rewrote with real triad math, flat accidentals, and maj/m detection via negative lookahead.
+- `/play` endpoint was missing `@strudel/mini`, `@strudel/soundfonts`, and a dirt-samples preload, so stock drum and GM patterns played silently. Added the three imports plus an `ensureSamplesLoaded` bootstrap.
+- `examples.ts` "Voiced chord arpeggio" used `note()` instead of `chord()` with an inert trailing `.s()`; `functions.ts` `pickOut` example called `.layer()` instead of `.pickOut()`.
 
 ## [0.1.0] - 2026-04-16
 
@@ -52,7 +53,7 @@ state in the repo before 0.2.0.
 ### Added
 
 - 8 tools: `strudel_docs`, `strudel_examples`, `strudel_sounds`, `strudel_theory`, `strudel_compose`, `strudel_validate`, `strudel_run`, `strudel_library`.
-- Pre-compiled knowledge base: 43 functions, 33 effects, 60 sounds (9 drum banks, 10 synths, 12 sample libraries, 14 drum voices, 20 GM instruments, including gaps filled in 0.2.0), 18 scales, 12 curated examples, mini-notation rules.
+- Pre-compiled knowledge base: 43 functions, 33 effects, 65 sounds (9 drum banks, 10 synths, 12 sample libraries, 14 drum voices, 20 GM instruments), 18 scales, 12 curated examples, mini-notation rules.
 - Base64 share-URL encoding matching `@strudel/core`'s `code2hash`.
 - Span-aware static linter.
 - Chord symbol parser and Roman-numeral progression resolver.
