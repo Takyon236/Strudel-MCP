@@ -6,3 +6,4 @@ dist/
 .env.local
 library/*.json
 !library/.gitkeep
+.claude/

@@ -1,6 +1,6 @@
 {
   "name": "strudel-mcp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Model Context Protocol server for the Strudel live-coding music language",
   "type": "module",
   "main": "dist/index.js",
@@ -10,6 +10,15 @@
   "files": [
     "dist"
   ],
+  "author": "Takyon236",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Takyon236/Strudel-MCP.git"
+  },
+  "homepage": "https://github.com/Takyon236/Strudel-MCP#readme",
+  "bugs": {
+    "url": "https://github.com/Takyon236/Strudel-MCP/issues"
+  },
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/index.ts",

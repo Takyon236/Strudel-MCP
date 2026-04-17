@@ -2,22 +2,23 @@
 
 A **Model Context Protocol** server that gives LLMs deep knowledge of [Strudel](https://strudel.cc) — the JavaScript port of [TidalCycles](https://tidalcycles.org) for live-coded music. Lets Claude (or any MCP-aware model) compose, validate, and run runnable Strudel patterns without needing to know the whole API by heart.
 
-The MCP is **knowledge-first**: the LLM writes the Strudel code, and the 8 tools give it reference data, composition templates, music-theory helpers, a static linter, and a playback handoff that works for patterns of any length.
+The MCP is **knowledge-first**: the LLM writes the Strudel code, and the 10 tools give it reference data, composition templates, music-theory helpers, a static linter, a playback handoff that works for patterns of any length, audio sample downloading, and audio analysis.
 
 ---
 
 ## Features
 
-- **8 focused tools** covering documentation, examples, sounds, music theory, composition, validation, playback, and a persistent snippet library
+- **10 focused tools** covering documentation, examples, sounds, music theory, composition, validation, playback, a persistent snippet library, audio sample downloading, and audio analysis
 - **Pre-compiled knowledge base** — no runtime network calls, no rate limits, no doc drift
-- **Handles arbitrarily long patterns** — automatic fallback to a local HTML file using `@strudel/embed` when a base64 share URL would exceed the ~2000-char markdown/browser ceiling
+- **Handles arbitrarily long patterns** — automatic fallback to a local HTML file using `@strudel/repl` (the inline web-component bundle from unpkg) when a base64 share URL would exceed the ~2000-char markdown/browser ceiling
 - **10 genre templates** (house, techno, hip-hop, trap, dnb, jazz, ambient, psytrance, lofi, rock) with professional-depth patterns: sidechain ducking via orbit routing, filter envelopes (lpenv), swing/humanization via `.late()`, variation via `every`/`sometimesBy`/`ply`/`degradeBy`, layered bass, and genre-authentic drum patterns
-- **71 documented functions** and **80 documented effects** — covering the modern Strudel API including voicing/arp, filter/pitch envelopes, orbit routing, ducking, phaser/tremolo/vibrato, FM synthesis, and distortion types
-- **98 sound entries** — 18 drum machine banks, 16 synths, 37 GM instruments, 14 sample libraries, 13 drum voices
-- **23 curated example patterns** demonstrating real Strudel idioms: sidechain pumping, voiced arpeggios, acid bass filter envelopes, amen break chopping, euclidean polyrhythms, dub delay, perlin noise modulation, layered reese bass
+- **84 documented functions** and **80 documented effects** — covering the modern Strudel API including voicing/arp, filter/pitch envelopes, orbit routing, ducking, phaser/tremolo/vibrato, FM synthesis, and distortion types
+- **209 sound entries** — 71 drum machine banks, 48 GM instruments, 27 dirt-sample categories, 20 VCSL instruments, 16 synths, 14 sample libraries, 13 drum voices
+- **34 curated example patterns** demonstrating real Strudel idioms: sidechain pumping, voiced arpeggios, acid bass filter envelopes, amen break chopping, euclidean polyrhythms, dub delay, perlin noise modulation, layered reese bass, nightcore with supersaw + layered kicks
+- **Audio download + analysis** — `strudel_sample` pulls audio from YouTube/SoundCloud/URL via `yt-dlp`, serves it locally with CORS so Strudel can play it; `strudel_analyze` runs librosa-based BPM/key/chord extraction and renders a 3-panel spectrogram PNG
 - **Span-aware static linter** that understands strings, comments, template literals, escape sequences, scale specs, chord symbols, euclidean rhythms, and Strudel's mini-notation
-- **Music theory helper** — 24 scales/modes (including phrygian dominant, hungarian minor, hirajoshi, insen), chord symbol parser with accidentals and extensions, Roman-numeral progression resolver with correct root-position voicing
-- **Zero runtime dependencies** beyond `@modelcontextprotocol/sdk` and `zod`
+- **Music theory helper** — 26 scales/modes (including phrygian dominant, hungarian minor, hirajoshi, insen), chord symbol parser with accidentals and extensions, Roman-numeral progression resolver with correct root-position voicing
+- **Zero runtime npm dependencies** beyond `@modelcontextprotocol/sdk` and `zod` — audio download and analysis use optional system tools (`yt-dlp`, Python + librosa) invoked via `spawn`
 - **No Playwright, no headless browser, no external services** — `open: true` uses the platform's native opener (`xdg-open` / `open` / `start`)
 
 ---
@@ -34,6 +35,23 @@ bun run build   # or: npm run build
 ```
 
 Output goes to `dist/index.js`.
+
+### Optional system dependencies
+
+Two of the ten tools call out to system binaries. Install them only if you plan to use those tools — the rest of the MCP works without them.
+
+| Tool | Requires | Why |
+|---|---|---|
+| `strudel_sample` | [`yt-dlp`](https://github.com/yt-dlp/yt-dlp) | YouTube and SoundCloud downloads. Direct HTTPS URLs work without it. |
+| `strudel_analyze` | Python 3 + `librosa` + `matplotlib` + `numpy` | BPM / key / chord extraction and spectrogram rendering. |
+
+Install `yt-dlp` via your package manager (`pip install yt-dlp`, `brew install yt-dlp`, `apt install yt-dlp`, etc.) and the Python stack with:
+
+```bash
+pip install librosa matplotlib numpy
+```
+
+The MCP probes for these at call time (`yt-dlp --version`; `python3 -c 'import librosa'`) and returns a clear error if they're missing — it does not fail at startup.
 
 ---
 
@@ -54,7 +72,7 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) /
 }
 ```
 
-Restart Claude Desktop — the 8 tools appear in the hammer menu.
+Restart Claude Desktop — the 10 tools appear in the hammer menu.
 
 ### Claude Code
 
@@ -106,7 +124,7 @@ Or edit `~/.claude/mcp.json` directly with the same JSON shape as above.
 
 The 1200-char threshold is calibrated so the URL stays below ~2000 chars after base64 + URL encoding + the `https://strudel.cc/#` prefix — the empirical ceiling above which markdown link rendering breaks.
 
-The `embed` HTML file uses the official [`@strudel/embed`](https://www.npmjs.com/package/@strudel/embed) package loaded from the unpkg CDN. The pattern code is written inside a `<script type="application/strudel-pattern">` holder and picked up by a bootstrap that creates a `<strudel-repl>` element with the pattern in its `code` attribute. **No URL length limit. No external services.**
+The `embed` HTML file uses [`@strudel/repl@1.2.7`](https://www.npmjs.com/package/@strudel/repl) loaded from the unpkg CDN — the **inline** web-component (not to be confused with `@strudel/embed`, a thin iframe wrapper around `strudel.cc` that inherits the URL-length limit). The bundle includes CodeMirror, the Strudel transpiler, webaudio output, and a prebake that auto-loads dirt-samples, soundfonts, and drum machines. The pattern code is written inside a `<script type="application/strudel-pattern">` holder; a small bootstrap waits for `customElements.whenDefined('strudel-editor')`, creates a `<strudel-editor>`, sets its `code` attribute from the holder, and appends it to a `#repl-root` container sized to fill the viewport. `Ctrl+Enter` plays, `Ctrl+.` stops. **No URL length limit. No external services.** See `src/lib/encode.ts::generatePlayerHtml` for the source of truth.
 
 ### Exports directory
 
@@ -167,19 +185,23 @@ bun test           # full test suite
 ```
 src/
   index.ts              # McpServer + tool registration
-  tools/                # One file per tool (8 files)
+  tools/                # One file per tool (10 files: docs, examples, sounds, theory, compose, validate, run, library, sample, analyze)
   knowledge/            # Pre-compiled reference data
-    functions.ts        # FunctionDoc[]
-    effects.ts          # EffectDoc[]
-    sounds.ts           # Drums / banks / GM / samples
-    scales.ts           # Scale definitions + parseRoot + notesInScale
-    minispec.ts         # Mini-notation rules + overview
-    examples.ts         # Curated runnable pattern examples
+    functions.ts        # FunctionDoc[] (84 entries)
+    effects.ts          # EffectDoc[] (80 entries)
+    sounds.ts           # Drums / banks / synths / GM / VCSL / dirt / sample libs (209 entries)
+    scales.ts           # Scale definitions + parseRoot + notesInScale (26 scales)
+    minispec.ts         # Mini-notation rules + overview (19 rules)
+    examples.ts         # Curated runnable pattern examples (34 entries)
   lib/
-    encode.ts           # code2hash / hash2code / generateEmbedHtml
+    encode.ts           # code2hash / hash2code / generatePlayerHtml (self-contained HTML via @strudel/repl)
     validate.ts         # Span-aware static linter
     theory.ts           # Chord parser + Roman-numeral resolver
     library.ts          # Snippet persistence + export HTML
+    sampleServer.ts     # Localhost HTTP server with CORS, yt-dlp integration, /play REPL endpoint
+    analyzer.ts         # Spawns scripts/analyze.py (librosa) for BPM/key/chord analysis
+scripts/
+  analyze.py            # librosa-based audio analysis (BPM, key, chords, spectrogram)
 tests/                  # bun test suite
 ```
 
@@ -189,15 +211,7 @@ For the full design document including tool-by-tool rationale, validator interna
 
 ## Contributing
 
-Issues and PRs welcome. Before opening a PR:
-
-```bash
-bun run typecheck   # must pass
-bun test            # must pass
-bun run build       # must produce dist/ cleanly
-```
-
-Follow the existing code style — no classes, functional helpers split into `lib/`, zod raw shapes for input schemas, tool responses shaped as `{ content: [{ type: 'text', text: ... }] }`.
+Issues and PRs welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md) for workflow, code style, and how to extend the tool surface or knowledge base. The full design document with tool-by-tool rationale is in [CLAUDE.md](./CLAUDE.md).
 
 ---
 
