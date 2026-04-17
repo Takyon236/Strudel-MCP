@@ -1,6 +1,9 @@
 # Strudel-MCP
 
-A **Model Context Protocol** server that gives LLMs deep knowledge of [Strudel](https://strudel.cc) — the JavaScript port of [TidalCycles](https://tidalcycles.org) for live-coded music. Lets Claude (or any MCP-aware model) compose, validate, and run runnable Strudel patterns without needing to know the whole API by heart.
+> **Community project — not affiliated with or endorsed by the Strudel or TidalCycles teams.**
+> This is an independent **Model Context Protocol** server *for* Strudel. "Strudel" refers to the upstream project at <https://strudel.cc>; used descriptively under nominative fair use. All Strudel code fetched at runtime is distributed by the upstream project under AGPL-3.0-or-later and is not redistributed here.
+
+A Model Context Protocol server that gives LLMs deep knowledge of [Strudel](https://strudel.cc) — the JavaScript port of [TidalCycles](https://tidalcycles.org) for live-coded music. Lets Claude (or any MCP-aware model) compose, validate, and run runnable Strudel patterns without needing to know the whole API by heart.
 
 The MCP is **knowledge-first**: the LLM writes the Strudel code, and the 10 tools give it reference data, composition templates, music-theory helpers, a static linter, a playback handoff that works for patterns of any length, audio sample downloading, and audio analysis.
 
