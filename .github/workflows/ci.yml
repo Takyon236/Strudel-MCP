@@ -27,11 +27,5 @@ jobs:
       - name: Build
         run: bun run build
 
-      - name: Unit tests
-        run: bun run test:unit
-
-      - name: Tool tests
-        run: bun run test:tools
-
-      - name: Integration tests
-        run: bun run test:integration
+      - name: Test
+        run: bun test tests

@@ -11,13 +11,13 @@ The MCP is **knowledge-first**: the LLM writes the Strudel code, and the 10 tool
 - **10 focused tools** covering documentation, examples, sounds, music theory, composition, validation, playback, a persistent snippet library, audio sample downloading, and audio analysis
 - **Pre-compiled knowledge base** — no runtime network calls, no rate limits, no doc drift
 - **Handles arbitrarily long patterns** — automatic fallback to a local HTML file using `@strudel/repl` (the inline web-component bundle from unpkg) when a base64 share URL would exceed the ~2000-char markdown/browser ceiling
-- **10 genre templates** (house, techno, hip-hop, trap, dnb, jazz, ambient, psytrance, lofi, rock) with professional-depth patterns: sidechain ducking via orbit routing, filter envelopes (lpenv), swing/humanization via `.late()`, variation via `every`/`sometimesBy`/`ply`/`degradeBy`, layered bass, and genre-authentic drum patterns
+- **11 genre templates** (house, techno, hip-hop, trap, dnb, jazz, ambient, psytrance, lofi, rock, hardbass) with professional-depth patterns: sidechain ducking via orbit routing, filter envelopes (lpenv), swing/humanization via `.late()`, variation via `every`/`sometimesBy`/`ply`/`degradeBy`, layered bass, and genre-authentic drum patterns
 - **84 documented functions** and **80 documented effects** — covering the modern Strudel API including voicing/arp, filter/pitch envelopes, orbit routing, ducking, phaser/tremolo/vibrato, FM synthesis, and distortion types
 - **209 sound entries** — 71 drum machine banks, 48 GM instruments, 27 dirt-sample categories, 20 VCSL instruments, 16 synths, 14 sample libraries, 13 drum voices
 - **34 curated example patterns** demonstrating real Strudel idioms: sidechain pumping, voiced arpeggios, acid bass filter envelopes, amen break chopping, euclidean polyrhythms, dub delay, perlin noise modulation, layered reese bass, nightcore with supersaw + layered kicks
 - **Audio download + analysis** — `strudel_sample` pulls audio from YouTube/SoundCloud/URL via `yt-dlp`, serves it locally with CORS so Strudel can play it; `strudel_analyze` runs librosa-based BPM/key/chord extraction and renders a 3-panel spectrogram PNG
 - **Span-aware static linter** that understands strings, comments, template literals, escape sequences, scale specs, chord symbols, euclidean rhythms, and Strudel's mini-notation
-- **Music theory helper** — 26 scales/modes (including phrygian dominant, hungarian minor, hirajoshi, insen), chord symbol parser with accidentals and extensions, Roman-numeral progression resolver with correct root-position voicing
+- **Music theory helper** — 24 scales/modes (including phrygian dominant, hungarian minor, hirajoshi, insen, double harmonic), chord symbol parser with accidentals and extensions, Roman-numeral progression resolver with correct root-position voicing
 - **Zero runtime npm dependencies** beyond `@modelcontextprotocol/sdk` and `zod` — audio download and analysis use optional system tools (`yt-dlp`, Python + librosa) invoked via `spawn`
 - **No Playwright, no headless browser, no external services** — `open: true` uses the platform's native opener (`xdg-open` / `open` / `start`)
 
@@ -190,8 +190,8 @@ src/
     functions.ts        # FunctionDoc[] (84 entries)
     effects.ts          # EffectDoc[] (80 entries)
     sounds.ts           # Drums / banks / synths / GM / VCSL / dirt / sample libs (209 entries)
-    scales.ts           # Scale definitions + parseRoot + notesInScale (26 scales)
-    minispec.ts         # Mini-notation rules + overview (19 rules)
+    scales.ts           # Scale definitions + parseRoot + notesInScale (24 scales)
+    minispec.ts         # Mini-notation rules + overview (18 rules)
     examples.ts         # Curated runnable pattern examples (34 entries)
   lib/
     encode.ts           # code2hash / hash2code / generatePlayerHtml (self-contained HTML via @strudel/repl)
